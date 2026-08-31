@@ -120,7 +120,7 @@ server.listen(port, () => {
                     {
                         StartInfo = new ProcessStartInfo
                         {
-                            FileName = "npm",
+                            FileName = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows) ? "npm.cmd" : "npm",
                             Arguments = "install",
                             WorkingDirectory = _profile.ServerDirectory,
                             UseShellExecute = false,

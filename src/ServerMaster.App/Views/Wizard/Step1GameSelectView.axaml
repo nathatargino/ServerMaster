@@ -72,9 +72,9 @@
                 <TextBlock Text="Servidor de aventura modular"
                            FontSize="11" Foreground="{StaticResource BrushTextMuted}" HorizontalAlignment="Center"/>
               </StackPanel>
-              <Border Background="#2D1F4D" CornerRadius="9999" Padding="12,4">
-                <TextBlock Text="⏳  Em Breve" FontSize="11" FontWeight="SemiBold"
-                           Foreground="#7C5CBF" HorizontalAlignment="Center"/>
+              <Border Background="#1E3A21" CornerRadius="9999" Padding="12,4">
+                <TextBlock Text="✔  Suportado" FontSize="11" FontWeight="SemiBold"
+                           Foreground="#4CAF50" HorizontalAlignment="Center"/>
               </Border>
             </StackPanel>
           </Border>
