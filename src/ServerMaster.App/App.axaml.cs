@@ -42,11 +42,13 @@ public partial class App : Application
         Services = services.BuildServiceProvider();
 
         // ── Auto-Update Boot ──────────────────────────────────────────────────
+#if !DEBUG
         _ = Task.Run(async () =>
         {
-            Core.Services.AutoUpdaterService.CleanupOldFiles();
-            await Core.Services.AutoUpdaterService.CheckAndUpdateAsync();
+            try { Core.Services.AutoUpdaterService.CleanupOldFiles(); } catch {}
+            try { await Core.Services.AutoUpdaterService.CheckAndUpdateAsync(); } catch {}
         });
+#endif
 
         // ── Bootstrap window ─────────────────────────────────────────────────
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
