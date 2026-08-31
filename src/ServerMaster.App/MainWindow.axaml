@@ -16,7 +16,7 @@
         WindowState="Maximized"
         WindowStartupLocation="CenterScreen"
         Background="{StaticResource BrushBgBase}"
-        WindowDecorations="None">
+        ExtendClientAreaToDecorationsHint="True">
 
   <Window.DataTemplates>
     <DataTemplate DataType="{x:Type baseVm:WelcomeViewModel}">
