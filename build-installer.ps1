@@ -1,7 +1,7 @@
 $ErrorActionPreference = "Stop"
 
 Write-Host "Publicando projeto Server Master (Tentativa 1)..."
-$publishArgs = "publish src\ServerMaster.App\ServerMaster.App.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o .\publish"
+$publishArgs = "publish src\ServerMaster.App\ServerMaster.App.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o .\publish"
 $process = Start-Process dotnet -ArgumentList $publishArgs -NoNewWindow -Wait -PassThru
 if ($process.ExitCode -ne 0) {
     Write-Host "Falha na publicacao. Tentando novamente..."

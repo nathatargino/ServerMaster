@@ -1,6 +1,9 @@
 [Setup]
 AppName=Server Master
 AppVersion=1.0.1
+AppPublisher=Server Master Team
+AppPublisherURL=https://github.com/nathatargino/ServerMaster
+AppCopyright=Copyright (C) 2026 Server Master
 DefaultDirName={autopf}\Server Master
 DefaultGroupName=Server Master
 OutputBaseFilename=ServerMaster-Setup
