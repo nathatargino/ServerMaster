@@ -16,8 +16,9 @@ public sealed class AutoUpdaterService
     // Set to 1.0.0 initially so any push will be considered an update by the timestamp rule.
     private static string GetCurrentVersion()
     {
-        var assembly = Assembly.GetExecutingAssembly();
-        var fvi = FileVersionInfo.GetVersionInfo(assembly.Location);
+        var exePath = Process.GetCurrentProcess().MainModule?.FileName;
+        if (string.IsNullOrEmpty(exePath)) return "1.0.0";
+        var fvi = FileVersionInfo.GetVersionInfo(exePath);
         return fvi.FileVersion ?? "1.0.0";
     }
 
@@ -80,7 +81,7 @@ public sealed class AutoUpdaterService
             foreach (var asset in assets.EnumerateArray())
             {
                 var assetName = asset.GetProperty("name").GetString();
-                if (assetName != null && assetName.EndsWith(".exe", StringComparison.OrdinalIgnoreCase))
+                if (assetName != null && assetName.EndsWith(".exe", StringComparison.OrdinalIgnoreCase) && !assetName.Contains("Setup", StringComparison.OrdinalIgnoreCase))
                 {
                     downloadUrl = asset.GetProperty("browser_download_url").GetString() ?? "";
                     break;

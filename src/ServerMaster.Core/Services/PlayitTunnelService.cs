@@ -223,7 +223,7 @@ public sealed class PlayitTunnelService : INetworkTunnel, IAsyncDisposable
         var psi = new ProcessStartInfo
         {
             FileName = GetCliPath(),
-            Arguments = $"claim --secret_path \"{secretPath}\"",
+            Arguments = $"-s --secret_path \"{secretPath}\"",
             UseShellExecute        = false,
             RedirectStandardOutput = true,
             RedirectStandardError  = true,
