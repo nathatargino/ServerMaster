@@ -52,8 +52,9 @@ public sealed class HytaleServer : IServerEngine, IAsyncDisposable
 
             var packageJsonPath = Path.Combine(_profile.ServerDirectory, "package.json");
             var serverJsPath = Path.Combine(_profile.ServerDirectory, "server.js");
+            var nodeModulesPath = Path.Combine(_profile.ServerDirectory, "node_modules");
 
-            if (!File.Exists(serverJsPath))
+            if (!File.Exists(serverJsPath) || !Directory.Exists(nodeModulesPath))
             {
                 progress?.Report("Gerando arquitetura Node.js do Hytale Mock...");
                 Emit(LogLevel.Information, "[ServerMaster] Construindo ambiente Express/WS de testes (Hytale Node Server)...");
