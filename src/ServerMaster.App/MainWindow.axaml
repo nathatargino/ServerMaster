@@ -9,7 +9,7 @@
         xmlns:baseViews="clr-namespace:ServerMaster.App.Views"
         x:Class="ServerMaster.App.MainWindow"
         x:DataType="local:AppShellViewModel"
-        Icon="avares://ServerMaster.App/Assets/logo.png"
+        Icon="avares://ServerMaster/Assets/logo.png"
         Title="Server Master"
         Width="1400" Height="820"
         MinWidth="1024" MinHeight="760"
@@ -38,7 +38,7 @@
     <Grid Grid.Row="0" Background="{StaticResource BrushBgBase}" ColumnDefinitions="Auto,*,Auto" PointerPressed="TitleBar_PointerPressed">
       <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="10"
                   Margin="16,0,0,0" VerticalAlignment="Center">
-        <Image Source="avares://ServerMaster.App/Assets/logo.png" Width="20" Height="20" />
+        <Image Source="avares://ServerMaster/Assets/logo.png" Width="20" Height="20" />
         <TextBlock Text="Server Master" FontSize="12" FontWeight="Bold" Foreground="{StaticResource BrushTextPrimary}"/>
       </StackPanel>
       <Border Grid.Column="1" Background="Transparent"/>

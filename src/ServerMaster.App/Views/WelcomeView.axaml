@@ -7,7 +7,7 @@
   <Grid>
     <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="24">
       
-      <Image Source="avares://ServerMaster.App/Assets/logo.png" Width="80" Height="80"/>
+      <Image Source="avares://ServerMaster/Assets/logo.png" Width="80" Height="80"/>
 
       <StackPanel Spacing="8" HorizontalAlignment="Center">
         <TextBlock Text="Bem-vindo ao Server Master" FontSize="28" FontWeight="Bold" Foreground="{StaticResource BrushTextPrimary}" HorizontalAlignment="Center"/>
