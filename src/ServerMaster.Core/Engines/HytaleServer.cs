@@ -52,91 +52,56 @@ public sealed class HytaleServer : IServerEngine, IAsyncDisposable
 
             var packageJsonPath = Path.Combine(_profile.ServerDirectory, "package.json");
             var serverJsPath = Path.Combine(_profile.ServerDirectory, "server.js");
-            var nodeModulesPath = Path.Combine(_profile.ServerDirectory, "node_modules");
+            
+            // Força a atualização deletando o server.js antigo (se existir)
+            if (File.Exists(serverJsPath)) File.Delete(serverJsPath);
 
-            if (!File.Exists(serverJsPath) || !Directory.Exists(nodeModulesPath))
+            if (!File.Exists(serverJsPath))
             {
-                progress?.Report("Gerando arquitetura Node.js do Hytale Mock...");
-                Emit(LogLevel.Information, "[ServerMaster] Construindo ambiente Express/WS de testes (Hytale Node Server)...");
+                progress?.Report("Gerando arquitetura Node.js do Hytale Mock (UDP)...");
+                Emit(LogLevel.Information, "[ServerMaster] Construindo ambiente de Rede UDP (Hytale Node Server)...");
 
                 _isMockMode = true; // Still marked as mock since Hytale isn't live
 
-                var packageJsonStr = @"{
-  ""name"": ""hytale-mock"",
-  ""version"": ""1.0.0"",
-  ""main"": ""server.js"",
-  ""dependencies"": {
-    ""express"": ""^4.18.2"",
-    ""ws"": ""^8.16.0""
-  }
-}";
-                await File.WriteAllTextAsync(packageJsonPath, packageJsonStr, ct);
-
-                var serverJsStr = @"const express = require('express');
-const { WebSocketServer } = require('ws');
-const http = require('http');
-
-const app = express();
-const server = http.createServer(app);
-const wss = new WebSocketServer({ server });
+                var serverJsStr = @"const dgram = require('dgram');
+const server = dgram.createSocket('udp4');
 
 const port = process.env.PORT || 5520;
-
 let onlinePlayers = 0;
 
-wss.on('connection', (ws) => {
-    onlinePlayers++;
-    console.log(`[CHAT] Player${onlinePlayers} joined the game.`);
-
-    ws.on('close', () => {
-        console.log(`[CHAT] Player${onlinePlayers} left the game.`);
-        onlinePlayers = Math.max(0, onlinePlayers - 1);
-    });
+server.on('error', (err) => {
+  console.log([Hytale] Server error:
+);
+  server.close();
 });
 
-app.get('/', (req, res) => res.json({ status: 'active', players: onlinePlayers }));
+server.on('message', (msg, rinfo) => {
+  console.log([Hytale] Recebido pacote UDP de : (Size:  bytes));
+  
+  if (msg.length > 0) {
+      // Fake handshake acceptance pinging back
+      const response = Buffer.from('HYTALE_MOCK_ACCEPTED');
+      server.send(response, 0, response.length, rinfo.port, rinfo.address);
+  }
+});
+
+server.on('listening', () => {
+    console.log([Hytale] Loading mock world data (Seed: -2294191));
+    setTimeout(() => {
+        console.log([Hytale] Starting network listener on 0.0.0.0:...);
+        setTimeout(() => {
+            console.log([Hytale] Server marked as ONLINE. Conecte no IP local.);
+        }, 500);
+    }, 1000);
+});
 
 setInterval(() => {
     console.log('[Hytale] Keep-alive packet broadcasted.');
 }, 6000);
 
-server.listen(port, () => {
-    console.log(`[Hytale] Loading mock world data (Seed: -2294191)`);
-    setTimeout(() => {
-        console.log(`[Hytale] Starting network listener on 0.0.0.0:${port}...`);
-        setTimeout(() => {
-            console.log(`[Hytale] Server marked as ONLINE. Conecte no IP local.`);
-        }, 500);
-    }, 1000);
-});
-";
+server.bind(port);";
+                
                 await File.WriteAllTextAsync(serverJsPath, serverJsStr, ct);
-
-                progress?.Report("Instalando pacotes via NPM...");
-                Emit(LogLevel.Information, "[ServerMaster] Executando npm install...");
-
-                try
-                {
-                    var npmProcess = new Process
-                    {
-                        StartInfo = new ProcessStartInfo
-                        {
-                            FileName = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows) ? "npm.cmd" : "npm",
-                            Arguments = "install",
-                            WorkingDirectory = _profile.ServerDirectory,
-                            UseShellExecute = false,
-                            CreateNoWindow = true,
-                            RedirectStandardOutput = true,
-                            RedirectStandardError = true
-                        }
-                    };
-                    npmProcess.Start();
-                    await npmProcess.WaitForExitAsync(ct);
-                }
-                catch (System.ComponentModel.Win32Exception)
-                {
-                    Emit(LogLevel.Warning, "[ServerMaster] Node.js ou NPM não encontrados no PATH. O servidor pode falhar ao iniciar.");
-                }
             }
 
             // Write eula.txt
