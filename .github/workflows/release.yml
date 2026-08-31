@@ -32,8 +32,12 @@ jobs:
         if ("${{ github.ref }}" -like "refs/tags/*") {
           $version = "${{ github.ref_name }}"
         } else {
+          $csprojPath = "src/ServerMaster.App/ServerMaster.App.csproj"
+          $xml = [xml](Get-Content $csprojPath)
+          $codeVersion = $xml.Project.PropertyGroup.Version
+          if (-not $codeVersion) { $codeVersion = "1.0.0" }
           $timestamp = Get-Date -Format "yyyyMMddHHmmss"
-          $version = "v1.0.0-$timestamp"
+          $version = "v$codeVersion-$timestamp"
         }
         echo "VERSION=$version" >> $env:GITHUB_ENV
         

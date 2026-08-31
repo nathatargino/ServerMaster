@@ -14,7 +14,12 @@ public sealed class AutoUpdaterService
     
     // Fallback static version if AssemblyInformationalVersion is null.
     // Set to 1.0.0 initially so any push will be considered an update by the timestamp rule.
-    private const string CurrentVersion = "v1.0.0"; 
+    private static string GetCurrentVersion()
+    {
+        var assembly = Assembly.GetExecutingAssembly();
+        var fvi = FileVersionInfo.GetVersionInfo(assembly.Location);
+        return fvi.FileVersion ?? "1.0.0";
+    }
 
     /// <summary>
     /// Deletes residual update files (.old.exe) if they persist after a swap.
@@ -63,7 +68,11 @@ public sealed class AutoUpdaterService
             
             // Expected tag: v1.0.0-2026...
             var latestTag = root.GetProperty("tag_name").GetString();
-            if (string.IsNullOrEmpty(latestTag) || latestTag == CurrentVersion) return;
+            var currentVersion = GetCurrentVersion();
+            
+            if (string.IsNullOrEmpty(latestTag)) return;
+            
+            if (latestTag == currentVersion || latestTag == "v" + currentVersion || latestTag.StartsWith("v" + currentVersion + "-")) return;
 
             // Locate the .exe asset
             var assets = root.GetProperty("assets");
