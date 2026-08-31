@@ -1,6 +1,3 @@
-<p align="center">
-  <img src="https://raw.githubusercontent.com/avaloniaui/avaloniaui.net/master/Assets/avalonia-logo.svg" alt="Avalonia UI" width="100"/>
-</p>
 <h1 align="center">Server Master</h1>
 <p align="center">
   <strong>Gerenciador definitivo de Servidores de Jogos para Desktop.</strong><br/>
