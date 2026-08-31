@@ -1,0 +1,80 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:ServerMaster.ViewModels.Wizard;assembly=ServerMaster.ViewModels"
+             x:Class="ServerMaster.App.Views.Wizard.Step4NetworkView"
+             x:DataType="vm:Step4NetworkViewModel"
+             Background="{StaticResource BrushBgBase}">
+
+  <Grid RowDefinitions="*,Auto" Margin="40">
+    <StackPanel Grid.Row="0" VerticalAlignment="Center" HorizontalAlignment="Center"
+                MaxWidth="480" Spacing="28">
+
+      <StackPanel Spacing="6">
+        <TextBlock Text="Configuração de Rede" FontSize="24" FontWeight="Bold" Foreground="{StaticResource BrushTextPrimary}"/>
+        <TextBlock Text="Escolha como o servidor será acessível." FontSize="13" Foreground="{StaticResource BrushTextMuted}"/>
+      </StackPanel>
+
+      <!-- Mode card -->
+      <Border Classes="card">
+        <StackPanel Spacing="20">
+
+          <StackPanel Spacing="4">
+            <RadioButton Content="Apenas LAN (Rede Local)"
+                         IsChecked="{Binding IsLanOnly}"
+                         FontSize="14" FontWeight="Medium" Foreground="{StaticResource BrushTextPrimary}"/>
+            <TextBlock Text="Exibe o endereço de Loopback para jogar com seus amigos na mesma casa via roteador ou via Hamachi / Radmin VPN."
+                       Margin="24,0,0,0" FontSize="12" Foreground="{StaticResource BrushTextMuted}" TextWrapping="Wrap"/>
+          </StackPanel>
+
+          <StackPanel Spacing="4">
+            <RadioButton Content="Tenho porta liberada no roteador (Conexão Direta)"
+                         IsChecked="{Binding IsPortForwarded}"
+                         FontSize="14" FontWeight="Medium" Foreground="{StaticResource BrushTextPrimary}"/>
+            <TextBlock Text="Exibe seu Endereço IPv4 real em rede para hospedar conexões diretas pelo seu Public IP."
+                       Margin="24,0,0,0" FontSize="12" Foreground="{StaticResource BrushTextMuted}" TextWrapping="Wrap"/>
+          </StackPanel>
+
+          <StackPanel Spacing="4">
+            <RadioButton Content="Túnel Público via Playit.gg (recomendado para CGNAT)"
+                         IsChecked="{Binding IsPlayitTunnel}"
+                         FontSize="14" FontWeight="Medium" Foreground="{StaticResource BrushTextPrimary}"/>
+            <TextBlock Text="Link público gerado automaticamente. Sem necessidade de abrir portas no roteador."
+                       Margin="24,0,0,0" FontSize="12" Foreground="{StaticResource BrushTextMuted}" TextWrapping="Wrap"/>
+          </StackPanel>
+
+        </StackPanel>
+      </Border>
+
+      <!-- Ports & Players -->
+      <UniformGrid Columns="2"  HorizontalAlignment="Left" Grid.IsSharedSizeScope="True">
+        <!-- Port -->
+        <StackPanel Spacing="6" Margin="0,0,24,0">
+          <TextBlock Text="Porta local" FontSize="12" FontWeight="Medium" Foreground="{StaticResource BrushTextSecondary}"/>
+          <NumericUpDown Value="{Binding ServerPort}" Minimum="1024" Maximum="65535" 
+                         ShowButtonSpinner="False" FormatString="0" MinWidth="150"/>
+        </StackPanel>
+
+        <!-- Max Players -->
+        <StackPanel Spacing="6" IsVisible="{Binding IsMinecraft}">
+          <TextBlock Text="Limites de jogadores" FontSize="12" FontWeight="Medium" Foreground="{StaticResource BrushTextSecondary}"/>
+          <NumericUpDown Value="{Binding MaxPlayers}" Minimum="1" Maximum="10000" 
+                         ShowButtonSpinner="False" FormatString="0" MinWidth="150" PlaceholderText="Padrão (20)"/>
+        </StackPanel>
+      </UniformGrid>
+
+      <!-- Pirated Players (Minecraft only) -->
+      <StackPanel Spacing="6" IsVisible="{Binding IsMinecraft}">
+        <TextBlock Text="Opções do Minecraft" FontSize="12" FontWeight="Medium" Foreground="{StaticResource BrushTextSecondary}"/>
+        <CheckBox Content="Permitir jogadores piratas (offline-mode)" 
+                  IsChecked="{Binding AllowPiratePlayers}" 
+                  Foreground="{StaticResource BrushTextPrimary}"/>
+      </StackPanel>
+
+    </StackPanel>
+
+    <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="12" HorizontalAlignment="Right">
+      <Button Content="← Voltar" Command="{Binding BackCommand}" Classes="ghost-btn"/>
+      <Button Content="Próximo →" Command="{Binding NextCommand}" Classes="primary-btn"/>
+    </StackPanel>
+  </Grid>
+</UserControl>

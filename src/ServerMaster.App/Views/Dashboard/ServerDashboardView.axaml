@@ -1,0 +1,371 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:ServerMaster.ViewModels.Dashboard;assembly=ServerMaster.ViewModels"
+             xmlns:models="clr-namespace:ServerMaster.Core.Models;assembly=ServerMaster.Core"
+             xmlns:conv="clr-namespace:ServerMaster.App.Converters"
+             x:Class="ServerMaster.App.Views.Dashboard.ServerDashboardView"
+             x:DataType="vm:ServerDashboardViewModel"
+             Background="{StaticResource BrushBgBase}">
+
+  <UserControl.Resources>
+    <conv:LogLevelToBrushConverter     x:Key="LogColor"/>
+    <conv:LogLevelToLabelConverter     x:Key="LogLabel"/>
+    <conv:LogLevelToPillBrushConverter x:Key="LogPill"/>
+    <conv:PercentToColorBrushConverter x:Key="PctColor"/>
+    <conv:ServerStateToLabelConverter  x:Key="StateLabel"/>
+    <conv:ServerStateToBrushConverter  x:Key="StateBrush"/>
+  </UserControl.Resources>
+
+  <!-- Root layout: sidebar | main -->
+  <Grid ColumnDefinitions="280,*">
+
+    <!-- ══ LEFT SIDEBAR ══════════════════════════════════════════════════════ -->
+    <Border Grid.Column="0"
+            Background="#111520"
+            BorderBrush="{StaticResource BrushBgElevated}"
+            BorderThickness="0,0,1,0">
+      <StackPanel Margin="0" Spacing="0">
+
+        <!-- Server identity header -->
+        <Border Padding="20,20,20,16" Background="{StaticResource BrushBgSurface}">
+          <StackPanel Spacing="10">
+
+            <!-- Name + status pill -->
+            <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
+              <TextBlock Grid.Column="0"
+                         Text="{Binding ServerName}"
+                         FontSize="16" FontWeight="Bold"
+                         Foreground="{StaticResource BrushTextPrimary}"
+                         TextTrimming="CharacterEllipsis"/>
+              <Border Grid.Column="1"
+                      Background="{Binding State, Converter={StaticResource StateBrush}}"
+                      CornerRadius="9999"
+                      Padding="10,3">
+                <TextBlock Text="{Binding State, Converter={StaticResource StateLabel}}"
+                           FontSize="11" FontWeight="SemiBold"
+                           Foreground="{StaticResource BrushTextPrimary}"/>
+              </Border>
+            </Grid>
+
+            <!-- Game + version row -->
+            <StackPanel Orientation="Horizontal" Spacing="6">
+              <TextBlock Text="{Binding GameType}"
+                         FontSize="12" Foreground="{StaticResource BrushTextMuted}"/>
+              <TextBlock Text="·" FontSize="12" Foreground="#374151"/>
+              <TextBlock Text="{Binding GameVersion}"
+                         FontSize="12" Foreground="{StaticResource BrushTextMuted}"/>
+            </StackPanel>
+
+            <!-- Tunnel / address -->
+            <StackPanel Spacing="6">
+              
+              <!-- Local IP -->
+              <Border Background="{StaticResource BrushBgBase}" CornerRadius="6" Padding="4">
+                <Button Classes="ghost-btn" Padding="8,4" Background="Transparent" 
+                        Click="CopyLocalIp_Click" ToolTip.Tip="Copiar IP Local (LAN)">
+                  <StackPanel Orientation="Horizontal" Spacing="6">
+                    <TextBlock Text="🏠" FontSize="12"/>
+                    <TextBlock Text="{Binding LocalAddress}"
+                               FontSize="11" Foreground="{StaticResource BrushAccentPrimary}"
+                               FontFamily="Cascadia Code,Consolas,monospace"/>
+                  </StackPanel>
+                </Button>
+              </Border>
+
+              <!-- Playit Status Panel -->
+              <StackPanel Orientation="Horizontal" Spacing="6" Margin="0,0,0,4">
+                  <TextBlock Text="Playit (Túnel P/ Internet):" FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource BrushTextSecondary}"/>
+                  <TextBlock Text="{Binding TunnelStatusString}" FontSize="12" FontWeight="Bold" Foreground="{Binding TunnelStatusColor}"/>
+              </StackPanel>
+
+              <!-- Tunnel IP Box (Only visible if active) -->
+              <Border Background="{StaticResource BrushBgBase}" CornerRadius="6" Padding="4"
+                      IsVisible="{Binding TunnelActive}">
+                <Button Classes="ghost-btn" Padding="8,4" Background="Transparent" 
+                        Click="CopyPublicIp_Click" ToolTip.Tip="Copiar IP Público (Playit.gg)">
+                  <StackPanel Orientation="Horizontal" Spacing="6">
+                    <TextBlock Text="🌐" FontSize="12"/>
+                    <TextBlock Text="{Binding PublicAddress}"
+                               FontSize="11" Foreground="{StaticResource BrushAccentPrimaryHover}"
+                               FontFamily="Cascadia Code,Consolas,monospace"
+                               TextTrimming="CharacterEllipsis"/>
+                  </StackPanel>
+                </Button>
+              </Border>
+              
+            </StackPanel>
+
+          </StackPanel>
+        </Border>
+
+        <!-- ── Resource Gauges ─────────────────────────────── -->
+        <StackPanel Margin="16,16,16,0" Spacing="16">
+
+          <!-- CPU gauge -->
+          <StackPanel Spacing="8">
+            <Grid ColumnDefinitions="*,Auto">
+              <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="6">
+                <TextBlock Text="CPU" FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource BrushTextSecondary}"/>
+              </StackPanel>
+              <TextBlock Grid.Column="1"
+                         Text="{Binding CpuPercent, StringFormat='{}{0:F1} %'}"
+                         FontSize="12" FontWeight="Bold"
+                         Foreground="{Binding CpuPercent, Converter={StaticResource PctColor}}"/>
+            </Grid>
+            <Border Background="{StaticResource BrushBgElevated}" CornerRadius="9999" Height="6" ClipToBounds="True">
+              <Border HorizontalAlignment="Left"
+                      Background="{Binding CpuPercent, Converter={StaticResource PctColor}}"
+                      CornerRadius="9999" Height="6">
+                <Border.Width>
+                  <MultiBinding Converter="{x:Static conv:PercentToWidthConverter.Instance}">
+                    <Binding Path="CpuPercent"/>
+                    <Binding RelativeSource="{RelativeSource AncestorType=Border, AncestorLevel=1}"
+                             Path="Bounds.Width"/>
+                  </MultiBinding>
+                </Border.Width>
+                <Border.Transitions>
+                  <Transitions>
+                    <DoubleTransition Property="Width" Duration="0:0:0.5" Easing="CubicEaseOut"/>
+                  </Transitions>
+                </Border.Transitions>
+              </Border>
+            </Border>
+            <TextBlock Text="{Binding CpuPercent, StringFormat='{}{0:F1}% utilizado'}"
+                       FontSize="10" Foreground="#4B5563"/>
+          </StackPanel>
+
+          <!-- RAM gauge -->
+          <StackPanel Spacing="8">
+            <Grid ColumnDefinitions="*,Auto">
+              <TextBlock Grid.Column="0" Text="RAM" FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource BrushTextSecondary}"/>
+              <TextBlock Grid.Column="1"
+                         Text="{Binding RamMb, StringFormat='{}{0} MB'}"
+                         FontSize="12" FontWeight="Bold"
+                         Foreground="{Binding RamPercent, Converter={StaticResource PctColor}}"/>
+            </Grid>
+            <Border Background="{StaticResource BrushBgElevated}" CornerRadius="9999" Height="6" ClipToBounds="True">
+              <Border HorizontalAlignment="Left"
+                      Background="{Binding RamPercent, Converter={StaticResource PctColor}}"
+                      CornerRadius="9999" Height="6">
+                <Border.Width>
+                  <MultiBinding Converter="{x:Static conv:PercentToWidthConverter.Instance}">
+                    <Binding Path="RamPercent"/>
+                    <Binding RelativeSource="{RelativeSource AncestorType=Border, AncestorLevel=1}"
+                             Path="Bounds.Width"/>
+                  </MultiBinding>
+                </Border.Width>
+                <Border.Transitions>
+                  <Transitions>
+                    <DoubleTransition Property="Width" Duration="0:0:0.5" Easing="CubicEaseOut"/>
+                  </Transitions>
+                </Border.Transitions>
+              </Border>
+            </Border>
+            <TextBlock Text="{Binding RamUsageLabel}" FontSize="10" Foreground="#4B5563"/>
+          </StackPanel>
+
+          <!-- Separator -->
+          <Border Height="1" Background="{StaticResource BrushBgElevated}" Margin="0,4"/>
+
+          <!-- Stats row -->
+          <UniformGrid Columns="2" ColumnSpacing="12" RowSpacing="12">
+
+            <!-- Uptime -->
+            <Border Background="{StaticResource BrushBgSurface}" CornerRadius="8" Padding="12,10">
+              <StackPanel Spacing="4">
+                <TextBlock Text="⏱  Uptime" FontSize="10" Foreground="{StaticResource BrushTextMuted}"/>
+                <TextBlock Text="{Binding UptimeDisplay}"
+                           FontSize="14" FontWeight="Bold" Foreground="{StaticResource BrushTextPrimary}"
+                           FontFamily="Cascadia Code,Consolas,monospace"/>
+              </StackPanel>
+            </Border>
+
+            <!-- Players -->
+            <Border Background="{StaticResource BrushBgSurface}" CornerRadius="8" Padding="12,10">
+              <StackPanel Spacing="4">
+                <TextBlock Text="👥  Jogadores" FontSize="10" Foreground="{StaticResource BrushTextMuted}"/>
+                <TextBlock Text="{Binding OnlinePlayers, StringFormat='{}{0} online'}"
+                           FontSize="14" FontWeight="Bold" Foreground="{StaticResource BrushTextPrimary}"/>
+              </StackPanel>
+            </Border>
+
+          </UniformGrid>
+
+        </StackPanel>
+
+        <!-- Spacer -->
+        <Border Height="1" Background="{StaticResource BrushBgElevated}" Margin="16,16"/>
+
+        <!-- Control buttons -->
+        <StackPanel Margin="16,0,16,16" Spacing="8">
+          <Button Content="▶  Iniciar Servidor"
+                  Command="{Binding StartServerCommand}"
+                  IsVisible="{Binding !IsRunning}"
+                  Classes="primary-btn"
+                  HorizontalAlignment="Stretch"
+                  HorizontalContentAlignment="Center"/>
+          <Button Content="⏹  Parar Servidor"
+                  Command="{Binding StopServerCommand}"
+                  IsVisible="{Binding IsRunning}"
+                  Classes="danger-btn"
+                  HorizontalAlignment="Stretch"
+                  HorizontalContentAlignment="Center"/>
+          <Button Content="🔄  Reiniciar"
+                  Command="{Binding RestartServerCommand}"
+                  IsVisible="{Binding IsRunning}"
+                  Classes="ghost-btn"
+                  HorizontalAlignment="Stretch"
+                  HorizontalContentAlignment="Center"/>
+        </StackPanel>
+
+      </StackPanel>
+    </Border>
+
+    <!-- ══ MAIN AREA (Log terminal + console input) ═════════════════════════ -->
+    <Grid Grid.Column="1" RowDefinitions="Auto,*,Auto">
+
+      <!-- ── Top toolbar ─── -->
+      <Border Grid.Row="0"
+              Background="#111520"
+              BorderBrush="{StaticResource BrushBgElevated}"
+              BorderThickness="0,0,0,1"
+              Padding="16,10">
+        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+          <Grid ColumnDefinitions="*,Auto" MinWidth="450">
+            <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="16" VerticalAlignment="Center">
+              <TextBlock Text="Console de Logs" FontSize="13" FontWeight="SemiBold" Foreground="{StaticResource BrushTextSecondary}"/>
+              <StackPanel Orientation="Horizontal" Spacing="8">
+                <!-- Legend pills -->
+                <Border Background="#14532D" CornerRadius="9999" Padding="8,3">
+                  <TextBlock Text="INFO" FontSize="10" FontWeight="SemiBold" Foreground="#A3E6A3"/>
+                </Border>
+                <Border Background="#78350F" CornerRadius="9999" Padding="8,3">
+                  <TextBlock Text="WARN" FontSize="10" FontWeight="SemiBold" Foreground="{StaticResource BrushWarning}"/>
+                </Border>
+                <Border Background="#7F1D1D" CornerRadius="9999" Padding="8,3">
+                  <TextBlock Text="ERR" FontSize="10" FontWeight="SemiBold" Foreground="#F87171"/>
+                </Border>
+                <Border Background="#1E3A5F" CornerRadius="9999" Padding="8,3">
+                  <TextBlock Text="CHAT" FontSize="10" FontWeight="SemiBold" Foreground="#60A5FA"/>
+                </Border>
+              </StackPanel>
+            </StackPanel>
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" Margin="16,0,0,0">
+              <TextBox Text="{Binding LogFilter, Mode=TwoWay}"
+                       PlaceholderText="🔍 Filtrar logs…"
+                       Width="200"
+                       Background="{StaticResource BrushBgSurface}"
+                       Foreground="{StaticResource BrushTextPrimary}"
+                       BorderBrush="{StaticResource BrushBorder}"
+                       BorderThickness="1"
+                       CornerRadius="6"
+                       Padding="10,6"
+                       FontSize="12"/>
+              <Button Content="📋  Copiar"
+                      Click="CopyConsole_Click"
+                      Classes="ghost-btn"
+                      Padding="12,6"/>
+              <Button Content="🗑  Limpar"
+                      Command="{Binding ClearLogsCommand}"
+                      Classes="ghost-btn"
+                      Padding="12,6"/>
+              <Button Content="💾  Exportar"
+                      Command="{Binding ExportLogsCommand}"
+                      Classes="ghost-btn"
+                      Padding="12,6"/>
+              <Button Content="⬅  Voltar ao Menu"
+                      Command="{Binding ReturnToMenuCommand}"
+                      Classes="ghost-btn"
+                      Foreground="{StaticResource BrushTextSecondary}"
+                      Padding="12,6"/>
+            </StackPanel>
+          </Grid>
+        </ScrollViewer>
+      </Border>
+
+      <!-- ── Log terminal ─── -->
+      <Border Grid.Row="1"
+              Background="#0A0C12"
+              Margin="0">
+        <ScrollViewer Name="LogScrollViewer"
+                      HorizontalScrollBarVisibility="Auto"
+                      VerticalScrollBarVisibility="Auto">
+          <ItemsControl Name="LogItemsControl"
+                        ItemsSource="{Binding FilteredLogs}"
+                        Margin="4">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate DataType="{x:Type models:LogEntry}">
+                <Grid ColumnDefinitions="Auto,Auto,*"
+                      Margin="4,1">
+
+                  <!-- Timestamp -->
+                  <TextBlock Grid.Column="0"
+                             Text="{Binding Timestamp, StringFormat='HH:mm:ss'}"
+                             FontFamily="Cascadia Code,Consolas,monospace"
+                             FontSize="11"
+                             Foreground="#374151"
+                             Margin="0,0,10,0"
+                             VerticalAlignment="Center"/>
+
+                  <!-- Level pill -->
+                  <Border Grid.Column="1"
+                          Background="{Binding Level, Converter={StaticResource LogPill}}"
+                          CornerRadius="4"
+                          Padding="5,1"
+                          Margin="0,0,10,0"
+                          VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Level, Converter={StaticResource LogLabel}}"
+                               FontFamily="Cascadia Code,Consolas,monospace"
+                               FontSize="10" FontWeight="Bold"
+                               Foreground="{Binding Level, Converter={StaticResource LogColor}}"/>
+                  </Border>
+
+                  <!-- Message -->
+                  <TextBlock Grid.Column="2"
+                             Text="{Binding Message}"
+                             FontFamily="Cascadia Code,Consolas,monospace"
+                             FontSize="12"
+                             Foreground="{Binding Level, Converter={StaticResource LogColor}}"
+                             TextWrapping="Wrap"
+                             VerticalAlignment="Center"/>
+
+                </Grid>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </ScrollViewer>
+      </Border>
+
+      <!-- ── Console input ─── -->
+      <Border Grid.Row="2"
+              Background="#111520"
+              BorderBrush="{StaticResource BrushBgElevated}"
+              BorderThickness="0,1,0,0"
+              Padding="12,10">
+        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+          <TextBox Grid.Column="0"
+                   Name="ConsoleInput"
+                   Text="{Binding ConsoleInput, Mode=TwoWay}"
+                   PlaceholderText="Digite um comando e pressione Enter…"
+                   Background="{StaticResource BrushBgSurface}"
+                   Foreground="{StaticResource BrushTextPrimary}"
+                   CaretBrush="{StaticResource BrushAccentPrimary}"
+                   BorderBrush="{StaticResource BrushBorder}"
+                   BorderThickness="1"
+                   CornerRadius="8"
+                   Padding="12,8"
+                   FontFamily="Cascadia Code,Consolas,monospace"
+                   FontSize="13"
+                   IsEnabled="{Binding IsRunning}"/>
+          <Button Grid.Column="1"
+                  Content="Enviar  ↵"
+                  Command="{Binding SendConsoleInputCommand}"
+                  Classes="primary-btn"
+                  IsEnabled="{Binding IsRunning}"
+                  Padding="16,8"/>
+        </Grid>
+      </Border>
+
+    </Grid>
+  </Grid>
+</UserControl>

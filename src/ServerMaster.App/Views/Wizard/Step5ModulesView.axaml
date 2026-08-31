@@ -1,0 +1,79 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:ServerMaster.ViewModels.Wizard;assembly=ServerMaster.ViewModels"
+             x:Class="ServerMaster.App.Views.Wizard.Step5ModulesView"
+             x:DataType="vm:Step5ModulesViewModel"
+             Background="{StaticResource BrushBgBase}">
+
+  <Grid RowDefinitions="*,Auto" Margin="40">
+    <ScrollViewer Grid.Row="0">
+      <StackPanel VerticalAlignment="Top" HorizontalAlignment="Center"
+                  MaxWidth="560" Spacing="24" Margin="0,0,0,16">
+
+        <StackPanel Spacing="6">
+          <TextBlock Text="Módulos Opcionais" FontSize="24" FontWeight="Bold" Foreground="{StaticResource BrushTextPrimary}"/>
+          <TextBlock Text="Selecione plugins/pacotes que serão instalados automaticamente."
+                     FontSize="13" Foreground="{StaticResource BrushTextMuted}"/>
+        </StackPanel>
+
+        <!-- Module list -->
+        <ItemsControl ItemsSource="{Binding VisibleModules}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate DataType="{x:Type vm:ModuleOption}">
+              <Button Command="{Binding ToggleCommand}" Classes="card-btn"
+                      HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Cursor="Hand">
+                <Border Classes="card" Classes.selected="{Binding IsSelected}" Margin="0,0,0,8">
+                  <Grid ColumnDefinitions="*,Auto">
+                    <StackPanel Grid.Column="0" Spacing="2">
+                      <TextBlock Text="{Binding DisplayName}"
+                                 FontSize="14" FontWeight="SemiBold" Foreground="{StaticResource BrushTextPrimary}"/>
+                      <TextBlock Text="{Binding Description}"
+                                 FontSize="12" Foreground="{StaticResource BrushTextMuted}" TextWrapping="Wrap"/>
+                    </StackPanel>
+                    <CheckBox Grid.Column="1" VerticalAlignment="Center" IsChecked="{Binding IsSelected}" IsHitTestVisible="False"/>
+                  </Grid>
+                </Border>
+              </Button>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <!-- Normal status (not busy) -->
+        <TextBlock Text="{Binding StatusMessage}" IsVisible="{Binding !IsBusy}"
+                   FontSize="13" Foreground="{StaticResource BrushInfo}" TextWrapping="Wrap"/>
+      </StackPanel>
+    </ScrollViewer>
+
+    <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="12" HorizontalAlignment="Right">
+      <Button Content="← Voltar" Command="{Binding BackCommand}" Classes="ghost-btn"/>
+      <Button Content="{Binding ActionLabel}" Command="{Binding CreateServerCommand}"
+              Classes="primary-btn" IsEnabled="{Binding !IsBusy}"/>
+    </StackPanel>
+
+    <!-- Animated loading overlay -->
+    <Border Grid.Row="0" Grid.RowSpan="2" IsVisible="{Binding IsBusy}"
+            Background="#D9000000" CornerRadius="12"
+            HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+            ZIndex="10">
+      <Border Background="#1A1A2E" CornerRadius="12" Padding="24"
+              HorizontalAlignment="Center" VerticalAlignment="Center"
+              MinWidth="300" MaxWidth="400"
+              BorderBrush="{StaticResource BrushBorder}" BorderThickness="1"
+              BoxShadow="0 8 32 0 #40000000">
+        <StackPanel Spacing="16" HorizontalAlignment="Center">
+          <TextBlock Text="⚙️" FontSize="36" HorizontalAlignment="Center"/>
+          <TextBlock Text="{Binding StatusMessage}" FontSize="15" FontWeight="SemiBold"
+                     Foreground="{StaticResource BrushTextPrimary}"
+                     HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap"/>
+          <ProgressBar IsIndeterminate="True" Height="4" CornerRadius="9999"
+                       Foreground="{StaticResource BrushAccentPrimary}"
+                       Background="{StaticResource BrushBgElevated}"
+                       HorizontalAlignment="Stretch"/>
+          <TextBlock Text="Isso pode levar alguns segundos…" FontSize="12"
+                     Foreground="{StaticResource BrushTextMuted}" HorizontalAlignment="Center"/>
+        </StackPanel>
+      </Border>
+    </Border>
+
+  </Grid>
+</UserControl>

@@ -1,0 +1,36 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:ServerMaster.ViewModels;assembly=ServerMaster.ViewModels"
+             x:Class="ServerMaster.App.Views.WelcomeView"
+             x:DataType="vm:WelcomeViewModel">
+
+  <Grid>
+    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="24">
+      
+      <Image Source="avares://ServerMaster.App/Assets/logo.png" Width="80" Height="80"/>
+
+      <StackPanel Spacing="8" HorizontalAlignment="Center">
+        <TextBlock Text="Bem-vindo ao Server Master" FontSize="28" FontWeight="Bold" Foreground="{StaticResource BrushTextPrimary}" HorizontalAlignment="Center"/>
+        <TextBlock Text="Antes de começar, como você gostaria de ser chamado?" FontSize="16" Foreground="{StaticResource BrushTextSecondary}" HorizontalAlignment="Center"/>
+      </StackPanel>
+
+      <Border Background="{StaticResource BrushBgElevated}" CornerRadius="16" Padding="32" Width="440" Margin="0,16">
+        <StackPanel Spacing="24">
+          <TextBox Text="{Binding Username}" 
+                   PlaceholderText="Digite seu nome ou nickname..." 
+                   FontSize="16" 
+                   Height="50" 
+                   CornerRadius="8" 
+                   VerticalContentAlignment="Center" 
+                   Padding="16,0"
+                   BorderBrush="{StaticResource BrushBorder}" 
+                   BorderThickness="1"/>
+          
+          <Button Content="Começar a Usar" Command="{Binding ContinueCommand}" Classes="primary-btn" 
+                  HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Height="50" FontSize="16" FontWeight="SemiBold"/>
+        </StackPanel>
+      </Border>
+      
+    </StackPanel>
+  </Grid>
+</UserControl>

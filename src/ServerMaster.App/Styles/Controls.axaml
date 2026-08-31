@@ -1,0 +1,176 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <!-- ══ PRIMARY BUTTON (.primary-btn) ═══════════════════════════════════════ -->
+  <Style Selector="Button.primary-btn">
+    <Setter Property="Background"      Value="{StaticResource BrushAccentPrimary}"/>
+    <Setter Property="Foreground"      Value="White"/>
+    <Setter Property="CornerRadius"    Value="10"/>
+    <Setter Property="Padding"         Value="20,10"/>
+    <Setter Property="FontWeight"      Value="SemiBold"/>
+    <Setter Property="FontSize"        Value="14"/>
+    <Setter Property="BorderThickness" Value="0"/>
+    <Setter Property="Cursor"          Value="Hand"/>
+    <Setter Property="Transitions">
+      <Setter.Value>
+        <Transitions>
+          <BrushTransition Property="Background" Duration="0:0:0.15"/>
+          <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.1"/>
+        </Transitions>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <Style Selector="Button.primary-btn:pointerover">
+    <Setter Property="Background"     Value="{StaticResource BrushAccentPrimaryHover}"/>
+    <Setter Property="RenderTransform" Value="scaleX(1.02) scaleY(1.02)"/>
+  </Style>
+  <Style Selector="Button.primary-btn:pressed">
+    <Setter Property="RenderTransform" Value="scaleX(0.97) scaleY(0.97)"/>
+  </Style>
+
+  <!-- ══ GHOST BUTTON (.ghost-btn) ════════════════════════════════════════════ -->
+  <Style Selector="Button.ghost-btn">
+    <Setter Property="Background"      Value="Transparent"/>
+    <Setter Property="Foreground"      Value="{StaticResource BrushTextSecondary}"/>
+    <Setter Property="CornerRadius"    Value="10"/>
+    <Setter Property="Padding"         Value="20,10"/>
+    <Setter Property="FontWeight"      Value="Medium"/>
+    <Setter Property="BorderBrush"     Value="{StaticResource BrushBorder}"/>
+    <Setter Property="BorderThickness" Value="1"/>
+    <Setter Property="Cursor"          Value="Hand"/>
+    <Setter Property="Transitions">
+      <Setter.Value>
+        <Transitions>
+          <BrushTransition Property="Background" Duration="0:0:0.15"/>
+        </Transitions>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <Style Selector="Button.ghost-btn:pointerover">
+    <Setter Property="Background" Value="{StaticResource BrushBgElevated}"/>
+    <Setter Property="Foreground" Value="{StaticResource BrushTextPrimary}"/>
+  </Style>
+
+  <!-- ══ DANGER BUTTON (.danger-btn) ═════════════════════════════════════════ -->
+  <Style Selector="Button.danger-btn">
+    <Setter Property="Background"      Value="#3B1414"/>
+    <Setter Property="Foreground"      Value="{StaticResource BrushDanger}"/>
+    <Setter Property="CornerRadius"    Value="10"/>
+    <Setter Property="Padding"         Value="20,10"/>
+    <Setter Property="FontWeight"      Value="SemiBold"/>
+    <Setter Property="BorderBrush"     Value="{StaticResource BrushDanger}"/>
+    <Setter Property="BorderThickness" Value="1"/>
+    <Setter Property="Cursor"          Value="Hand"/>
+  </Style>
+  <Style Selector="Button.danger-btn:pointerover">
+    <Setter Property="Background" Value="#4D1F1F"/>
+  </Style>
+
+  <!-- ══ SUCCESS BUTTON (.success-btn) ═════════════════════════════════════════ -->
+  <Style Selector="Button.success-btn">
+    <Setter Property="Background"      Value="#064E3B"/>
+    <Setter Property="Foreground"      Value="#34D399"/>
+    <Setter Property="CornerRadius"    Value="10"/>
+    <Setter Property="Padding"         Value="20,10"/>
+    <Setter Property="FontWeight"      Value="SemiBold"/>
+    <Setter Property="BorderBrush"     Value="#059669"/>
+    <Setter Property="BorderThickness" Value="1"/>
+    <Setter Property="Cursor"          Value="Hand"/>
+  </Style>
+  <Style Selector="Button.success-btn:pointerover">
+    <Setter Property="Background" Value="#065F46"/>
+  </Style>
+
+  <!-- ══ CARD BORDER (.card) ══════════════════════════════════════════════════ -->
+  <Style Selector="Border.card">
+    <Setter Property="Background"      Value="{StaticResource BrushBgSurface}"/>
+    <Setter Property="CornerRadius"    Value="16"/>
+    <Setter Property="BorderBrush"     Value="{StaticResource BrushBorder}"/>
+    <Setter Property="BorderThickness" Value="1"/>
+    <Setter Property="Padding"         Value="20"/>
+    <Setter Property="Transitions">
+      <Setter.Value>
+        <Transitions>
+          <BrushTransition Property="BorderBrush" Duration="0:0:0.2"/>
+          <BrushTransition Property="Background"  Duration="0:0:0.2"/>
+        </Transitions>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <Style Selector="Border.card:pointerover">
+    <Setter Property="BorderBrush" Value="{StaticResource BrushAccentPrimary}"/>
+  </Style>
+  <Style Selector="Border.card.selected">
+    <Setter Property="BorderBrush" Value="{StaticResource BrushAccentPrimary}"/>
+    <Setter Property="Background"  Value="#1A1A3A"/>
+    <Setter Property="BorderThickness" Value="2"/>
+  </Style>
+
+  <!-- ══ DARK TEXT INPUT (.dark-input) ════════════════════════════════════════ -->
+  <Style Selector="TextBox.dark-input">
+    <Setter Property="Background"      Value="{StaticResource BrushBgInput}"/>
+    <Setter Property="Foreground"      Value="{StaticResource BrushTextPrimary}"/>
+    <Setter Property="BorderBrush"     Value="{StaticResource BrushBorder}"/>
+    <Setter Property="BorderThickness" Value="1"/>
+    <Setter Property="CornerRadius"    Value="6"/>
+    <Setter Property="Padding"         Value="12,8"/>
+    <Setter Property="FontSize"        Value="14"/>
+    <Setter Property="CaretBrush"      Value="{StaticResource BrushAccentPrimary}"/>
+    <Setter Property="Transitions">
+      <Setter.Value>
+        <Transitions>
+          <BrushTransition Property="BorderBrush" Duration="0:0:0.15"/>
+        </Transitions>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <Style Selector="TextBox.dark-input:focus">
+    <Setter Property="BorderBrush" Value="{StaticResource BrushAccentPrimary}"/>
+  </Style>
+
+  <!-- ══ CARD BUTTON (.card-btn) ══════════════════════════════════════════════ -->
+  <Style Selector="Button.card-btn">
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="Padding" Value="0"/>
+    <Setter Property="BorderThickness" Value="0"/>
+  </Style>
+  <Style Selector="Button.card-btn:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="Transparent"/>
+  </Style>
+  <Style Selector="Button.card-btn:pressed /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="Transparent"/>
+  </Style>
+
+  <!-- ══ GAME SELECT CARD (.game-card) ════════════════════════════════════════ -->
+  <Style Selector="Border.game-card">
+    <Setter Property="Background"      Value="{StaticResource BrushBgSurface}"/>
+    <Setter Property="BorderBrush"     Value="{StaticResource BrushBorder}"/>
+    <Setter Property="CornerRadius"    Value="16"/>
+    <Setter Property="BorderThickness" Value="2"/>
+    <Setter Property="Padding"         Value="24"/>
+    <Setter Property="Cursor"          Value="Hand"/>
+    <Setter Property="Transitions">
+      <Setter.Value>
+        <Transitions>
+          <BrushTransition Property="BorderBrush"  Duration="0:0:0.2"/>
+          <BrushTransition Property="Background"   Duration="0:0:0.2"/>
+          <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.15"/>
+        </Transitions>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <Style Selector="Border.game-card:pointerover">
+    <Setter Property="BorderBrush" Value="{StaticResource BrushAccentPrimary}"/>
+  </Style>
+  <Style Selector="Border.game-card.selected">
+    <Setter Property="BorderBrush" Value="{StaticResource BrushAccentPrimary}"/>
+    <Setter Property="Background"  Value="#1A1A3A"/>
+  </Style>
+
+  <!-- ══ SCROLLBAR STYLING ════════════════════════════════════════════════════ -->
+  <Style Selector="ScrollBar /template/ Thumb">
+    <Setter Property="Background"   Value="{StaticResource BrushBorder}"/>
+    <Setter Property="CornerRadius" Value="9999"/>
+  </Style>
+
+</Styles>

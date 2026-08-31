@@ -1,0 +1,7 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/ServerMaster.App/ServerMaster.App.csproj" />
+    <Project Path="src/ServerMaster.Core/ServerMaster.Core.csproj" />
+    <Project Path="src/ServerMaster.ViewModels/ServerMaster.ViewModels.csproj" />
+  </Folder>
+</Solution>

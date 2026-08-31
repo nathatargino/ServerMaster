@@ -1,0 +1,61 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:ServerMaster.ViewModels.Wizard;assembly=ServerMaster.ViewModels"
+             x:Class="ServerMaster.App.Views.Wizard.Step2IdentityView"
+             x:DataType="vm:Step2IdentityViewModel"
+             Background="{StaticResource BrushBgBase}">
+
+  <Grid RowDefinitions="*,Auto" Margin="40">
+    <StackPanel Grid.Row="0" VerticalAlignment="Center" HorizontalAlignment="Center"
+                MaxWidth="480" Spacing="24">
+
+      <StackPanel Spacing="6">
+        <TextBlock Text="Identidade do Servidor" FontSize="24" FontWeight="Bold" Foreground="{StaticResource BrushTextPrimary}"/>
+        <TextBlock Text="Dê nome e escolha a versão do seu servidor." FontSize="13" Foreground="{StaticResource BrushTextMuted}"/>
+      </StackPanel>
+
+      <!-- Name -->
+      <StackPanel Spacing="6">
+        <TextBlock Text="Nome do servidor" FontSize="12" FontWeight="Medium" Foreground="{StaticResource BrushTextSecondary}"/>
+        <TextBox Text="{Binding ServerName}" PlaceholderText="Ex: Survival Aventura" Classes="dark-input"/>
+      </StackPanel>
+
+      <!-- Description -->
+      <StackPanel Spacing="6">
+        <TextBlock Text="Descrição (MOTD)" FontSize="12" FontWeight="Medium" Foreground="{StaticResource BrushTextSecondary}"/>
+        <TextBox Text="{Binding Description}" PlaceholderText="Uma aventura épica aguarda você..." Classes="dark-input"/>
+      </StackPanel>
+
+      <!-- Variant (Minecraft only) -->
+      <StackPanel Spacing="6" IsVisible="{Binding IsMinecraft}">
+        <TextBlock Text="Motor / Loader" FontSize="12" FontWeight="Medium" Foreground="{StaticResource BrushTextSecondary}"/>
+        <ComboBox ItemsSource="{Binding MinecraftVariants}"
+                  SelectedItem="{Binding SelectedVariant}"
+                  HorizontalAlignment="Stretch"/>
+      </StackPanel>
+
+      <!-- Game Mode (Minecraft only) -->
+      <StackPanel Spacing="6" IsVisible="{Binding IsMinecraft}">
+        <TextBlock Text="Modo de Jogo" FontSize="12" FontWeight="Medium" Foreground="{StaticResource BrushTextSecondary}"/>
+        <ComboBox ItemsSource="{Binding GameModes}"
+                  SelectedItem="{Binding SelectedGameMode}"
+                  HorizontalAlignment="Stretch"/>
+      </StackPanel>
+
+      <!-- Version -->
+      <StackPanel Spacing="6">
+        <TextBlock Text="Versão" FontSize="12" FontWeight="Medium" Foreground="{StaticResource BrushTextSecondary}"/>
+        <ComboBox ItemsSource="{Binding AvailableVersions}"
+                  SelectedItem="{Binding SelectedVersion}"
+                  HorizontalAlignment="Stretch"/>
+      </StackPanel>
+
+    </StackPanel>
+
+    <!-- Nav -->
+    <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="12" HorizontalAlignment="Right">
+      <Button Content="← Voltar" Command="{Binding BackCommand}" Classes="ghost-btn"/>
+      <Button Content="Próximo →" Command="{Binding NextCommand}" Classes="primary-btn"/>
+    </StackPanel>
+  </Grid>
+</UserControl>

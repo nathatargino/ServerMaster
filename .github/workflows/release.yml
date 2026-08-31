@@ -1,0 +1,48 @@
+name: Build and Release
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: windows-latest
+    permissions:
+      contents: write
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+      
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+        
+    - name: Publish ServerMaster
+      run: |
+        dotnet publish src/ServerMaster.App/ServerMaster.App.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o build-output
+        
+    - name: Get Version
+      id: get_version
+      run: |
+        if ("${{ github.ref }}" -like "refs/tags/*") {
+          $version = "${{ github.ref_name }}"
+        } else {
+          $timestamp = Get-Date -Format "yyyyMMddHHmmss"
+          $version = "v1.0.0-$timestamp"
+        }
+        echo "VERSION=$version" >> $env:GITHUB_ENV
+        
+    - name: Create Release and Upload Asset
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: ${{ env.VERSION }}
+        name: ServerMaster ${{ env.VERSION }}
+        draft: false
+        prerelease: false
+        generate_release_notes: true
+        files: build-output/ServerMaster.exe

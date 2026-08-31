@@ -1,0 +1,21 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="ServerMaster.App.App"
+             RequestedThemeVariant="Dark">
+
+  <!-- Color tokens in Resources -->
+  <Application.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceInclude Source="avares://ServerMaster.App/Styles/Colors.axaml"/>
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+  </Application.Resources>
+
+  <!-- Control styles -->
+  <Application.Styles>
+    <FluentTheme />
+    <StyleInclude Source="avares://ServerMaster.App/Styles/Controls.axaml"/>
+  </Application.Styles>
+
+</Application>

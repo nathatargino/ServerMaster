@@ -1,0 +1,63 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:ServerMaster.ViewModels.Wizard;assembly=ServerMaster.ViewModels"
+        xmlns:dash="clr-namespace:ServerMaster.ViewModels.Dashboard;assembly=ServerMaster.ViewModels"
+        xmlns:baseVm="clr-namespace:ServerMaster.ViewModels;assembly=ServerMaster.ViewModels"
+        xmlns:local="clr-namespace:ServerMaster.App"
+        xmlns:wizardViews="clr-namespace:ServerMaster.App.Views.Wizard"
+        xmlns:dashViews="clr-namespace:ServerMaster.App.Views.Dashboard"
+        xmlns:baseViews="clr-namespace:ServerMaster.App.Views"
+        x:Class="ServerMaster.App.MainWindow"
+        x:DataType="local:AppShellViewModel"
+        Icon="avares://ServerMaster.App/Assets/logo.png"
+        Title="Server Master"
+        Width="1400" Height="820"
+        MinWidth="1024" MinHeight="760"
+        WindowStartupLocation="CenterScreen"
+        Background="{StaticResource BrushBgBase}"
+        WindowDecorations="None">
+
+  <Window.DataTemplates>
+    <DataTemplate DataType="{x:Type baseVm:WelcomeViewModel}">
+      <baseViews:WelcomeView/>
+    </DataTemplate>
+    <DataTemplate DataType="{x:Type baseVm:HomeViewModel}">
+      <baseViews:HomeView/>
+    </DataTemplate>
+    <DataTemplate DataType="{x:Type vm:WizardHostViewModel}">
+      <wizardViews:WizardHostView/>
+    </DataTemplate>
+    <DataTemplate DataType="{x:Type dash:ServerDashboardViewModel}">
+      <dashViews:ServerDashboardView/>
+    </DataTemplate>
+  </Window.DataTemplates>
+
+  <Grid RowDefinitions="32,*">
+
+    <!-- Title bar -->
+    <Grid Grid.Row="0" Background="{StaticResource BrushBgBase}" ColumnDefinitions="Auto,*,Auto" PointerPressed="TitleBar_PointerPressed">
+      <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="10"
+                  Margin="16,0,0,0" VerticalAlignment="Center">
+        <Image Source="avares://ServerMaster.App/Assets/logo.png" Width="20" Height="20" />
+        <TextBlock Text="Server Master" FontSize="12" FontWeight="Bold" Foreground="{StaticResource BrushTextPrimary}"/>
+      </StackPanel>
+      <Border Grid.Column="1" Background="Transparent"/>
+      <StackPanel Grid.Column="2" Orientation="Horizontal" Margin="0,0,6,0"
+                  VerticalAlignment="Center" Spacing="2">
+        <Button Width="32" Height="32" Padding="0" Background="Transparent" BorderThickness="0" Click="MinimizeWindow">
+            <Path Data="M 0,5 H 10 V 6 H 0 Z" Fill="{StaticResource BrushTextMuted}" Stretch="None" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        </Button>
+        <Button Width="32" Height="32" Padding="0" Background="Transparent" BorderThickness="0" Click="MaximizeWindow">
+            <Path Data="M 1,1 H 9 V 9 H 1 Z" Stroke="{StaticResource BrushTextMuted}" StrokeThickness="1" Fill="Transparent" Stretch="None" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        </Button>
+        <Button Width="32" Height="32" Padding="0" Background="Transparent" BorderThickness="0" Click="CloseWindow">
+            <Path Data="M 0,0 L 10,10 M 10,0 L 0,10" Stroke="{StaticResource BrushTextMuted}" StrokeThickness="1" Stretch="None" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        </Button>
+      </StackPanel>
+    </Grid>
+
+    <!-- Main content — routes by ViewModel type -->
+    <ContentControl Grid.Row="1" Content="{Binding CurrentPage}"/>
+
+  </Grid>
+</Window>

@@ -1,0 +1,71 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:ServerMaster.ViewModels.Wizard;assembly=ServerMaster.ViewModels"
+             xmlns:views="clr-namespace:ServerMaster.App.Views.Wizard"
+             x:Class="ServerMaster.App.Views.Wizard.WizardHostView"
+             x:DataType="vm:WizardHostViewModel"
+             Background="{StaticResource BrushBgBase}">
+
+  <UserControl.DataTemplates>
+    <DataTemplate DataType="{x:Type vm:Step1GameSelectViewModel}">
+      <views:Step1GameSelectView/>
+    </DataTemplate>
+    <DataTemplate DataType="{x:Type vm:Step2IdentityViewModel}">
+      <views:Step2IdentityView/>
+    </DataTemplate>
+    <DataTemplate DataType="{x:Type vm:Step3HardwareViewModel}">
+      <views:Step3HardwareView/>
+    </DataTemplate>
+    <DataTemplate DataType="{x:Type vm:Step4NetworkViewModel}">
+      <views:Step4NetworkView/>
+    </DataTemplate>
+    <DataTemplate DataType="{x:Type vm:Step4bPlayitSetupViewModel}">
+      <views:Step4bPlayitSetupView/>
+    </DataTemplate>
+    <DataTemplate DataType="{x:Type vm:Step5ModulesViewModel}">
+      <views:Step5ModulesView/>
+    </DataTemplate>
+  </UserControl.DataTemplates>
+
+  <Grid RowDefinitions="Auto,*">
+
+    <!-- Progress header -->
+    <Border Grid.Row="0"
+            Background="{StaticResource BrushBgSurface}"
+            BorderBrush="{StaticResource BrushBorder}"
+            BorderThickness="0,0,0,1"
+            Padding="32,14">
+      <Grid RowDefinitions="Auto,10,Auto">
+
+        <!-- Step labels -->
+        <UniformGrid Grid.Row="0" Columns="6" Margin="0,0,0,6">
+          <TextBlock Text="01 Jogo"       HorizontalAlignment="Center" FontSize="11" Foreground="{StaticResource BrushTextMuted}"/>
+          <TextBlock Text="02 Identidade" HorizontalAlignment="Center" FontSize="11" Foreground="{StaticResource BrushTextMuted}"/>
+          <TextBlock Text="03 Recursos"   HorizontalAlignment="Center" FontSize="11" Foreground="{StaticResource BrushTextMuted}"/>
+          <TextBlock Text="04 Rede"       HorizontalAlignment="Center" FontSize="11" Foreground="{StaticResource BrushTextMuted}"/>
+          <TextBlock Text="04b Playit"    HorizontalAlignment="Center" FontSize="11" Foreground="{StaticResource BrushTextMuted}"/>
+          <TextBlock Text="05 Módulos"    HorizontalAlignment="Center" FontSize="11" Foreground="{StaticResource BrushTextMuted}"/>
+        </UniformGrid>
+
+        <!-- Progress bar track -->
+        <Border Grid.Row="2"
+                Background="{StaticResource BrushBgElevated}"
+                CornerRadius="9999"
+                Height="4">
+          <ProgressBar
+              Minimum="0"
+              Maximum="{Binding TotalSteps}"
+              Value="{Binding StepIndex}"
+              Height="4"
+              Foreground="{StaticResource BrushAccentPrimary}"
+              Background="Transparent"
+              HorizontalAlignment="Stretch"/>
+        </Border>
+      </Grid>
+    </Border>
+
+    <!-- Current step content -->
+    <ContentControl Grid.Row="1" Content="{Binding CurrentStep}"/>
+
+  </Grid>
+</UserControl>

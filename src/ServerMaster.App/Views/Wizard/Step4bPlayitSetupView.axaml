@@ -1,0 +1,80 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:ServerMaster.ViewModels.Wizard;assembly=ServerMaster.ViewModels"
+             x:Class="ServerMaster.App.Views.Wizard.Step4bPlayitSetupView"
+             x:DataType="vm:Step4bPlayitSetupViewModel"
+             Background="{StaticResource BrushBgBase}">
+
+  <Grid RowDefinitions="*,Auto" Margin="40">
+    <ScrollViewer Grid.Row="0">
+      <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center"
+                  MaxWidth="520" Spacing="28" Margin="0,0,0,16">
+
+        <!-- Icon + Title -->
+        <StackPanel HorizontalAlignment="Center" Spacing="12">
+          <Border Width="72" Height="72" CornerRadius="36"
+                  Background="#1A2A3A"
+                  HorizontalAlignment="Center">
+            <TextBlock Text="🔗" FontSize="32" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+          </Border>
+          <TextBlock Text="Configurar Túnel Playit" FontSize="26" FontWeight="Bold"
+                     Foreground="{StaticResource BrushTextPrimary}" HorizontalAlignment="Center"/>
+          <TextBlock Text="Conecte sua conta Playit.gg para hospedar via túnel público."
+                     FontSize="13" Foreground="{StaticResource BrushTextMuted}"
+                     HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap"/>
+        </StackPanel>
+
+        <!-- Instruction Card -->
+        <Border Background="#111D2E" BorderBrush="#1E3A5F" BorderThickness="1" CornerRadius="12" Padding="20">
+          <StackPanel Spacing="10" HorizontalAlignment="Center">
+            <TextBlock Text="Como funciona a vinculação:" FontSize="13" FontWeight="SemiBold"
+                       Foreground="{StaticResource BrushTextSecondary}" HorizontalAlignment="Center"/>
+            <StackPanel Spacing="6" HorizontalAlignment="Center">
+              <TextBlock Text="1️⃣  O seu navegador será automaticamente aberto" FontSize="12" Foreground="{StaticResource BrushTextMuted}" TextWrapping="Wrap"/>
+              <TextBlock Text="2️⃣  Aceite a vinculação na página do Playit.gg" FontSize="12" Foreground="{StaticResource BrushTextMuted}" TextWrapping="Wrap"/>
+              <TextBlock Text="3️⃣  Pronto! A chave será resgatada automaticamente" FontSize="12" Foreground="{StaticResource BrushTextMuted}" TextWrapping="Wrap"/>
+            </StackPanel>
+          </StackPanel>
+        </Border>
+
+        <!-- Status message -->
+        <TextBlock Text="{Binding StatusMessage}" IsVisible="{Binding !IsSaving}"
+                   FontSize="13" Foreground="#60A5FA" HorizontalAlignment="Center"
+                   TextWrapping="Wrap" TextAlignment="Center"/>
+      </StackPanel>
+    </ScrollViewer>
+
+    <!-- Animated loading overlay -->
+    <Border Grid.Row="0" Grid.RowSpan="2" IsVisible="{Binding IsSaving}"
+            Background="#D9000000" CornerRadius="12"
+            HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+            ZIndex="10">
+      <Border Background="#1A1A2E" CornerRadius="12" Padding="24"
+              HorizontalAlignment="Center" VerticalAlignment="Center"
+              MinWidth="300" MaxWidth="400"
+              BorderBrush="{StaticResource BrushBorder}" BorderThickness="1"
+              BoxShadow="0 8 32 0 #40000000">
+        <StackPanel Spacing="16" HorizontalAlignment="Center">
+          <TextBlock Text="🔗" FontSize="36" HorizontalAlignment="Center"/>
+          <TextBlock Text="{Binding StatusMessage}" FontSize="15" FontWeight="SemiBold"
+                     Foreground="{StaticResource BrushTextPrimary}"
+                     HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap"/>
+          <ProgressBar IsIndeterminate="True" Height="4" CornerRadius="9999"
+                       Foreground="{StaticResource BrushAccentPrimary}"
+                       Background="{StaticResource BrushBgElevated}"
+                       HorizontalAlignment="Stretch"/>
+          <TextBlock Text="Verificando token no Playit.gg…" FontSize="12"
+                     Foreground="{StaticResource BrushTextMuted}" HorizontalAlignment="Center"/>
+        </StackPanel>
+      </Border>
+    </Border>
+
+    <!-- Navigation -->
+    <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="12" HorizontalAlignment="Right">
+      <Button Content="← Voltar" Command="{Binding BackCommand}" Classes="ghost-btn"/>
+      <Button Content="Pular (já configurado)" Command="{Binding SkipCommand}" Classes="ghost-btn"/>
+      <Button Content="Conectar e Continuar →" Command="{Binding NextCommand}"
+              Classes="primary-btn" IsEnabled="{Binding !IsSaving}"/>
+    </StackPanel>
+  </Grid>
+</UserControl>

@@ -1,0 +1,118 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:ServerMaster.ViewModels.Wizard;assembly=ServerMaster.ViewModels"
+             x:Class="ServerMaster.App.Views.Wizard.Step1GameSelectView"
+             x:DataType="vm:Step1GameSelectViewModel"
+             Background="{StaticResource BrushBgBase}">
+
+  <Grid RowDefinitions="*,Auto" Margin="40">
+
+    <!-- Center content -->
+    <StackPanel Grid.Row="0"
+                VerticalAlignment="Center"
+                HorizontalAlignment="Center"
+                Spacing="32"
+                MaxWidth="900">
+
+      <!-- Headline -->
+      <StackPanel Spacing="8" HorizontalAlignment="Center">
+        <TextBlock Text="Escolha o Motor do Servidor"
+                   FontSize="26" FontWeight="Bold"
+                   Foreground="{StaticResource BrushTextPrimary}"
+                   HorizontalAlignment="Center"/>
+        <TextBlock Text="Selecione o jogo que você deseja hospedar"
+                   FontSize="14" Foreground="{StaticResource BrushTextMuted}"
+                   HorizontalAlignment="Center"/>
+      </StackPanel>
+
+      <!-- Game cards -->
+      <UniformGrid Columns="3" ColumnSpacing="16" RowSpacing="0">
+
+        <!-- Minecraft card -->
+        <Button Command="{Binding SelectGameCommand}"
+                CommandParameter="Minecraft"
+                HorizontalAlignment="Stretch"
+                HorizontalContentAlignment="Stretch"
+                Classes="card-btn" Cursor="Hand">
+          <Border Classes="game-card"
+                  Classes.selected="{Binding IsMinecraftSelected}">
+            <StackPanel Spacing="14" HorizontalAlignment="Center">
+              <Border Width="60" Height="60" CornerRadius="10" Background="#1E3A21">
+                <TextBlock Text="⛏️" FontSize="26" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+              </Border>
+              <StackPanel Spacing="4">
+                <TextBlock Text="Minecraft" FontSize="17" FontWeight="Bold"
+                           Foreground="{StaticResource BrushTextPrimary}" HorizontalAlignment="Center"/>
+                <TextBlock Text="Paper · Purpur · Forge · Fabric"
+                           FontSize="11" Foreground="{StaticResource BrushTextMuted}" HorizontalAlignment="Center"/>
+              </StackPanel>
+              <Border Background="#1E3A21" CornerRadius="9999" Padding="12,4">
+                <TextBlock Text="✔  Suportado" FontSize="11" FontWeight="SemiBold"
+                           Foreground="#4CAF50" HorizontalAlignment="Center"/>
+              </Border>
+            </StackPanel>
+          </Border>
+        </Button>
+
+        <!-- Hytale card -->
+        <Button Command="{Binding SelectGameCommand}"
+                CommandParameter="Hytale"
+                HorizontalAlignment="Stretch"
+                HorizontalContentAlignment="Stretch"
+                Classes="card-btn" Cursor="Hand">
+          <Border Classes="game-card"
+                  Classes.selected="{Binding IsHytaleSelected}">
+            <StackPanel Spacing="14" HorizontalAlignment="Center">
+              <Border Width="60" Height="60" CornerRadius="10" Background="#2D1F4D">
+                <TextBlock Text="🎮" FontSize="26" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+              </Border>
+              <StackPanel Spacing="4">
+                <TextBlock Text="Hytale" FontSize="17" FontWeight="Bold"
+                           Foreground="{StaticResource BrushTextPrimary}" HorizontalAlignment="Center"/>
+                <TextBlock Text="Servidor de aventura modular"
+                           FontSize="11" Foreground="{StaticResource BrushTextMuted}" HorizontalAlignment="Center"/>
+              </StackPanel>
+              <Border Background="#2D1F4D" CornerRadius="9999" Padding="12,4">
+                <TextBlock Text="⏳  Em Breve" FontSize="11" FontWeight="SemiBold"
+                           Foreground="#7C5CBF" HorizontalAlignment="Center"/>
+              </Border>
+            </StackPanel>
+          </Border>
+        </Button>
+      
+      <!-- My Servers Return Card Button below grid or as a 3rd element. Wait, it's inside UniformGrid here so it's a 3rd card -->
+      <Button Command="{Binding CancelCommand}"
+              HorizontalAlignment="Stretch"
+              HorizontalContentAlignment="Stretch"
+              Classes="card-btn" Cursor="Hand">
+        <Border Classes="game-card">
+          <StackPanel Spacing="14" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Border Width="60" Height="60" CornerRadius="10" Background="{StaticResource BrushBgElevated}">
+              <TextBlock Text="🏠" FontSize="26" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Border>
+            <StackPanel Spacing="4">
+              <TextBlock Text="Meus Servidores" FontSize="17" FontWeight="Bold"
+                         Foreground="{StaticResource BrushTextPrimary}" HorizontalAlignment="Center"/>
+              <TextBlock Text="Voltar para a tela inicial"
+                         FontSize="11" Foreground="{StaticResource BrushTextMuted}" HorizontalAlignment="Center"/>
+            </StackPanel>
+            <Border Background="{StaticResource BrushBgElevated}" CornerRadius="9999" Padding="12,4">
+              <TextBlock Text="🔙 Cancelar e Voltar" FontSize="11" FontWeight="SemiBold"
+                         Foreground="{StaticResource BrushTextMuted}" HorizontalAlignment="Center"/>
+            </Border>
+          </StackPanel>
+        </Border>
+      </Button>
+
+      </UniformGrid>
+    </StackPanel>
+
+    <!-- Bottom nav -->
+    <Button Grid.Row="1"
+            Content="Próximo  →"
+            Command="{Binding NextCommand}"
+            Classes="primary-btn"
+            HorizontalAlignment="Right"/>
+
+  </Grid>
+</UserControl>

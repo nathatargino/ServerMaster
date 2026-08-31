@@ -1,0 +1,63 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:ServerMaster.ViewModels.Wizard;assembly=ServerMaster.ViewModels"
+             x:Class="ServerMaster.App.Views.Wizard.Step3HardwareView"
+             x:DataType="vm:Step3HardwareViewModel"
+             Background="{StaticResource BrushBgBase}">
+
+  <Grid RowDefinitions="*,Auto" Margin="40">
+    <StackPanel Grid.Row="0" VerticalAlignment="Center" HorizontalAlignment="Center"
+                MaxWidth="480" Spacing="28">
+
+      <StackPanel Spacing="6">
+        <TextBlock Text="Recursos de Hardware" FontSize="24" FontWeight="Bold" Foreground="{StaticResource BrushTextPrimary}"/>
+        <TextBlock Text="{Binding SystemRamMb, StringFormat='{}{0} MB de RAM disponíveis no sistema.'}"
+                   FontSize="13" Foreground="{StaticResource BrushTextMuted}"/>
+      </StackPanel>
+
+      <!-- RAM Max -->
+      <StackPanel Spacing="10">
+        <Grid ColumnDefinitions="*,Auto">
+          <TextBlock Grid.Column="0" Text="RAM Máxima (heap JVM)" FontSize="13" FontWeight="Medium"
+                     Foreground="{StaticResource BrushTextSecondary}" VerticalAlignment="Center"/>
+          <TextBlock Grid.Column="1" Text="{Binding RamMb, StringFormat='{}{0} MB'}"
+                     FontSize="13" FontWeight="Bold" Foreground="{StaticResource BrushAccentPrimary}"/>
+        </Grid>
+        <Slider Value="{Binding RamMb}" Minimum="512" Maximum="{Binding SystemRamMb}"
+                TickFrequency="256" IsSnapToTickEnabled="True"/>
+        <TextBlock Text="{Binding RecommendedRamMb, StringFormat='Recomendado: {0} MB (50% do sistema)'}"
+                   FontSize="11" Foreground="{StaticResource BrushTextMuted}"/>
+      </StackPanel>
+
+      <!-- RAM Min -->
+      <StackPanel Spacing="10">
+        <Grid ColumnDefinitions="*,Auto">
+          <TextBlock Grid.Column="0" Text="RAM Mínima (heap JVM)" FontSize="13" FontWeight="Medium"
+                     Foreground="{StaticResource BrushTextSecondary}" VerticalAlignment="Center"/>
+          <TextBlock Grid.Column="1" Text="{Binding RamMinMb, StringFormat='{}{0} MB'}"
+                     FontSize="13" FontWeight="Bold" Foreground="{StaticResource BrushAccentPrimary}"/>
+        </Grid>
+        <Slider Value="{Binding RamMinMb}" Minimum="256" Maximum="2048"
+                TickFrequency="128" IsSnapToTickEnabled="True"/>
+      </StackPanel>
+
+      <!-- CPU -->
+      <StackPanel Spacing="10">
+        <Grid ColumnDefinitions="*,Auto">
+          <TextBlock Grid.Column="0" Text="Limite de CPU (%)" FontSize="13" FontWeight="Medium"
+                     Foreground="{StaticResource BrushTextSecondary}" VerticalAlignment="Center"/>
+          <TextBlock Grid.Column="1" Text="{Binding MaxCpuPercent, StringFormat='{}{0}%'}"
+                     FontSize="13" FontWeight="Bold" Foreground="{StaticResource BrushAccentPrimary}"/>
+        </Grid>
+        <Slider Value="{Binding MaxCpuPercent}" Minimum="10" Maximum="100"
+                TickFrequency="5" IsSnapToTickEnabled="True"/>
+      </StackPanel>
+
+    </StackPanel>
+
+    <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="12" HorizontalAlignment="Right">
+      <Button Content="← Voltar" Command="{Binding BackCommand}" Classes="ghost-btn"/>
+      <Button Content="Próximo →" Command="{Binding NextCommand}" Classes="primary-btn"/>
+    </StackPanel>
+  </Grid>
+</UserControl>

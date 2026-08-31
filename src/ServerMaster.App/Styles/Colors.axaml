@@ -1,0 +1,73 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <!-- ╔══════════════════════════════════════════════════════════╗
+       ║          SERVER MASTER  ·  Dark Mode Color System        ║
+       ╚══════════════════════════════════════════════════════════╝ -->
+
+  <!-- Background layers -->
+  <Color x:Key="ColorBgBase">#080A10</Color>         <!-- Very deep sleek blue-black -->
+  <Color x:Key="ColorBgSurface">#0E1119</Color>      <!-- Slightly lighter background -->
+  <Color x:Key="ColorBgElevated">#141924</Color>     <!-- Cards and popouts -->
+  <Color x:Key="ColorBgInput">#1B2230</Color>        <!-- Inputs -->
+
+  <!-- Accent - Minecraft -->
+  <Color x:Key="ColorAccentMinecraft">#4CAF50</Color>
+  <Color x:Key="ColorAccentMinecraftDim">#1E3A21</Color>
+  <Color x:Key="ColorAccentMinecraftGlow">#4D4CAF50</Color>
+
+  <!-- Accent - Hytale -->
+  <Color x:Key="ColorAccentHytale">#7C5CBF</Color>        
+  <Color x:Key="ColorAccentHytaleDim">#2D1F4D</Color>     
+  <Color x:Key="ColorAccentHytaleGlow">#4D7C5CBF</Color>
+
+  <!-- Primary accent (used for buttons, highlights) -->
+  <Color x:Key="ColorAccentPrimary">#6C63FF</Color>       <!-- Beautiful vibrant purple-blue -->
+  <Color x:Key="ColorAccentPrimaryHover">#827AFF</Color>  <!-- Even brighter hover -->
+  <Color x:Key="ColorAccentPrimaryDim">#29255C</Color>    <!-- Dim primary -->
+
+  <!-- Semantic -->
+  <Color x:Key="ColorSuccess">#22C55E</Color>
+  <Color x:Key="ColorWarning">#F59E0B</Color>
+  <Color x:Key="ColorDanger">#EF4444</Color>
+  <Color x:Key="ColorInfo">#38BDF8</Color>
+
+  <!-- Text -->
+  <Color x:Key="ColorTextPrimary">#F8FAFC</Color>     <!-- Crystal white -->
+  <Color x:Key="ColorTextSecondary">#9CA3AF</Color>   <!-- Slate gray -->
+  <Color x:Key="ColorTextMuted">#4B5563</Color>       <!-- Darker slate -->
+  <Color x:Key="ColorTextDisabled">#374151</Color>
+
+  <!-- Borders -->
+  <Color x:Key="ColorBorder">#1F2937</Color>         
+  <Color x:Key="ColorBorderSubtle">#111827</Color>
+
+  <!-- SolidColorBrushes -->
+  <SolidColorBrush x:Key="BrushBgBase"        Color="{StaticResource ColorBgBase}"/>
+  <SolidColorBrush x:Key="BrushBgSurface"     Color="{StaticResource ColorBgSurface}"/>
+  <SolidColorBrush x:Key="BrushBgElevated"    Color="{StaticResource ColorBgElevated}"/>
+  <SolidColorBrush x:Key="BrushBgInput"       Color="{StaticResource ColorBgInput}"/>
+
+  <SolidColorBrush x:Key="BrushAccentPrimary"       Color="{StaticResource ColorAccentPrimary}"/>
+  <SolidColorBrush x:Key="BrushAccentPrimaryHover"  Color="{StaticResource ColorAccentPrimaryHover}"/>
+  <SolidColorBrush x:Key="BrushAccentMinecraft"     Color="{StaticResource ColorAccentMinecraft}"/>
+  <SolidColorBrush x:Key="BrushAccentHytale"        Color="{StaticResource ColorAccentHytale}"/>
+
+  <SolidColorBrush x:Key="BrushSuccess"    Color="{StaticResource ColorSuccess}"/>
+  <SolidColorBrush x:Key="BrushWarning"    Color="{StaticResource ColorWarning}"/>
+  <SolidColorBrush x:Key="BrushDanger"     Color="{StaticResource ColorDanger}"/>
+  <SolidColorBrush x:Key="BrushInfo"       Color="{StaticResource ColorInfo}"/>
+
+  <SolidColorBrush x:Key="BrushTextPrimary"   Color="{StaticResource ColorTextPrimary}"/>
+  <SolidColorBrush x:Key="BrushTextSecondary" Color="{StaticResource ColorTextSecondary}"/>
+  <SolidColorBrush x:Key="BrushTextMuted"     Color="{StaticResource ColorTextMuted}"/>
+  <SolidColorBrush x:Key="BrushBorder"        Color="{StaticResource ColorBorder}"/>
+
+  <!-- Corner radii -->
+  <CornerRadius x:Key="RadiusSm">6</CornerRadius>
+  <CornerRadius x:Key="RadiusMd">10</CornerRadius>
+  <CornerRadius x:Key="RadiusLg">16</CornerRadius>
+  <CornerRadius x:Key="RadiusXl">24</CornerRadius>
+  <CornerRadius x:Key="RadiusFull">9999</CornerRadius>
+
+</ResourceDictionary>

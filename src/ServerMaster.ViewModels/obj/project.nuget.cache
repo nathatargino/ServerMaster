@@ -1,0 +1,17 @@
+{
+  "version": 2,
+  "dgSpecHash": "0+Uz44siFNQ=",
+  "success": true,
+  "projectFilePath": "C:\\Projetos .NET\\Server Master\\src\\ServerMaster.ViewModels\\ServerMaster.ViewModels.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\PC\\.nuget\\packages\\avalonia\\12.1.1\\avalonia.12.1.1.nupkg.sha512",
+    "C:\\Users\\PC\\.nuget\\packages\\avalonia.buildservices\\11.3.2\\avalonia.buildservices.11.3.2.nupkg.sha512",
+    "C:\\Users\\PC\\.nuget\\packages\\avalonia.remote.protocol\\12.1.1\\avalonia.remote.protocol.12.1.1.nupkg.sha512",
+    "C:\\Users\\PC\\.nuget\\packages\\communitytoolkit.mvvm\\8.4.2\\communitytoolkit.mvvm.8.4.2.nupkg.sha512",
+    "C:\\Users\\PC\\.nuget\\packages\\microcom.runtime\\0.11.6\\microcom.runtime.0.11.6.nupkg.sha512",
+    "C:\\Users\\PC\\.nuget\\packages\\microsoft.extensions.dependencyinjection\\10.0.11\\microsoft.extensions.dependencyinjection.10.0.11.nupkg.sha512",
+    "C:\\Users\\PC\\.nuget\\packages\\microsoft.extensions.dependencyinjection.abstractions\\10.0.11\\microsoft.extensions.dependencyinjection.abstractions.10.0.11.nupkg.sha512",
+    "C:\\Users\\PC\\.nuget\\packages\\system.reactive\\7.0.0\\system.reactive.7.0.0.nupkg.sha512"
+  ],
+  "logs": []
+}
