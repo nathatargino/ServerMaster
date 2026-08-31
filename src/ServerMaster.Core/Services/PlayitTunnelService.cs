@@ -264,10 +264,14 @@ public sealed class PlayitTunnelService : INetworkTunnel, IAsyncDisposable
             // Error handling
             if (line.Contains("Error:", StringComparison.OrdinalIgnoreCase) || line.Contains("Fail", StringComparison.OrdinalIgnoreCase))
             {
-                if (!line.Contains("Failed to write") && !line.Contains("Failed to flush"))
+                // Ignore benign flush errors and non-fatal network reachability issues (e.g. IPv6 ping failures)
+                if (!line.Contains("Failed to write", StringComparison.OrdinalIgnoreCase) && 
+                    !line.Contains("Failed to flush", StringComparison.OrdinalIgnoreCase) &&
+                    !line.Contains("failed to send initial ping", StringComparison.OrdinalIgnoreCase) &&
+                    !line.Contains("NetworkUnreachable", StringComparison.OrdinalIgnoreCase))
                 {
-                    // Ignore benign flush errors
-                    tcs.TrySetException(new InvalidOperationException($"Playit falhou: {line}"));
+                    // For now, we just log these. Playit's process exit will handle actual fatal crashes.
+                    onStatusUpdate?.Invoke($"Aviso Playit: {line}");
                 }
             }
         }
