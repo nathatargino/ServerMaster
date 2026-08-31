@@ -58,6 +58,12 @@
 
     <!-- Main content — routes by ViewModel type -->
     <ContentControl Grid.Row="1" Content="{Binding CurrentPage}"/>
+    
+    <TextBlock Grid.Row="1" Text="ServerMaster v1.0.0" Foreground="#2A2A2A" FontSize="11" 
+               VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="12" IsHitTestVisible="False"/>
+    
+    <TextBlock Grid.Row="1" Text="ServerMaster v1.0.0" Foreground="#333333" FontSize="11" 
+               VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="12" IsHitTestVisible="False"/>
 
   </Grid>
 </Window>

@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.IO.Compression;
 using System.Reactive.Subjects;
 using System.Text.Json;
@@ -51,7 +51,11 @@ public sealed class HytaleServer : IServerEngine, IAsyncDisposable
             Directory.CreateDirectory(_profile.ServerDirectory);
 
             var packageJsonPath = Path.Combine(_profile.ServerDirectory, "package.json");
-            var hasRealJar = File.Exists(Path.Combine(_profile.ServerDirectory, "HytaleServer.jar"));
+            var appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            var hytalePath = Path.Combine(appDataPath, @"Hytale\install\release\package\game\latest");
+            var hytaleServerPath = Path.Combine(hytalePath, "Server");
+            
+            var hasRealJar = File.Exists(Path.Combine(hytaleServerPath, "HytaleServer.jar"));
 
             if (!hasRealJar)
             {
@@ -112,7 +116,7 @@ server.bind(port);";
             else
             {
                 progress?.Report("Identificada Engine Oficial Hytale (Java)...");
-                Emit(LogLevel.Information, "[ServerMaster] HytaleServer.jar encontrado! Executaremos o backend autêntico através da JVM.");
+                Emit(LogLevel.Information, "[ServerMaster] HytaleServer.jar encontrado! Executaremos o backend autÃªntico atravÃ©s da JVM.");
             }
 
             // Write eula.txt
@@ -150,36 +154,42 @@ server.bind(port);";
 
     public Task StartAsync(CancellationToken ct = default)
     {
-        if (_profile == null) throw new InvalidOperationException("O servidor não foi preparado.");
+        if (_profile == null) throw new InvalidOperationException("O servidor nÃ£o foi preparado.");
 
         State = ServerState.Starting;
         var p = _profile;
 
         try
         {
-            Emit(LogLevel.Information, "[ServerMaster] Preparando inicialização da Engine (Node.js Hytale Mock)...");
+            Emit(LogLevel.Information, "[ServerMaster] Preparando inicializaÃ§Ã£o da Engine (Node.js Hytale Mock)...");
 
-            var hasRealJar = File.Exists(Path.Combine(p.ServerDirectory, "HytaleServer.jar"));
+            var appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+        var hytalePath = Path.Combine(appDataPath, @"Hytale\install\release\package\game\latest");
+        var hytaleServerPath = Path.Combine(hytalePath, "Server");
+        
+        var hasRealJar = File.Exists(Path.Combine(hytaleServerPath, "HytaleServer.jar"));
 
         var cmd = hasRealJar ? "java" : "node";
         var ram = p.Resources;
         var args = hasRealJar 
-            ? $"-Xms{ram.RamMinMb}M -Xmx{ram.RamMb}M -XX:+UseG1GC -jar HytaleServer.jar --bind 0.0.0.0:{p.Port}"
+            ? $"-Xms{ram.RamMinMb}M -Xmx{ram.RamMb}M -XX:+UseG1GC -jar HytaleServer.jar --assets ../Assets.zip --bind 0.0.0.0:{p.Port} --backup --backup-dir backups --backup-frequency 30"
             : "server.js";
+
+        var execContext = hasRealJar ? hytaleServerPath : p.ServerDirectory;
 
         try
         {
             if (hasRealJar) 
-                Emit(LogLevel.Information, $"[ServerMaster] Iniciando Engine Java Oficial do Hytale na porta UDP {p.Port}...");
+                Emit(LogLevel.Information, $"[ServerMaster] Iniciando Engine Hytale (AppData) na porta {p.Port}...");
             else
                 Environment.SetEnvironmentVariable("PORT", p.Port.ToString(), EnvironmentVariableTarget.Process);
                 
-            _process = _processManager.Start(p.ServerDirectory, cmd, args);
+            _process = _processManager.Start(execContext, cmd, args);
         }
         catch (System.ComponentModel.Win32Exception ex)
         {
-            Emit(LogLevel.Error, $"[ServerMaster] ERRO CRÍTICO: Não foi possível iniciar o executável '{cmd}'. " + 
-                                 "Ele está acessível no PATH do Windows? Detalhes: " + ex.Message);
+            Emit(LogLevel.Error, $"[ServerMaster] ERRO CRÃTICO: NÃ£o foi possÃ­vel iniciar o executÃ¡vel '{cmd}'. " + 
+                                 "Ele estÃ¡ acessÃ­vel no PATH do Windows? Detalhes: " + ex.Message);
             State = ServerState.Stopped;
             return Task.CompletedTask;
         }
@@ -199,7 +209,7 @@ server.bind(port);";
                 Emit(LogLevel.Warning, "[ServerMaster] O Processo do Hytale foi encerrado.");
             };
 
-            Emit(LogLevel.Information, "[ServerMaster] Servidor Hytale lançado com sucesso!");
+            Emit(LogLevel.Information, "[ServerMaster] Servidor Hytale lanÃ§ado com sucesso!");
         }
         catch (Exception ex)
         {
@@ -232,7 +242,7 @@ server.bind(port);";
         if (State != ServerState.Running) return;
         
         State = ServerState.Stopping;
-        Emit(LogLevel.Information, "[ServerMaster] Enviando comando 'stop'…");
+        Emit(LogLevel.Information, "[ServerMaster] Enviando comando 'stop'â€¦");
         
         if (_process is not null && !_process.HasExited)
         {
@@ -264,3 +274,5 @@ server.bind(port);";
         _resourceMonitor.Dispose();
     }
 }
+
+
