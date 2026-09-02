@@ -24,11 +24,12 @@
             Background="#111520"
             BorderBrush="{StaticResource BrushBgElevated}"
             BorderThickness="0,0,1,0">
-      <StackPanel Margin="0" Spacing="0">
+      <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="0" Spacing="0">
 
         <!-- Server identity header -->
-        <Border Padding="20,20,20,16" Background="{StaticResource BrushBgSurface}">
-          <StackPanel Spacing="10">
+        <Border Padding="16,16,16,12" Background="{StaticResource BrushBgSurface}">
+          <StackPanel Spacing="8">
 
             <!-- Name + status pill -->
             <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
@@ -73,9 +74,13 @@
               </Border>
 
               <!-- Playit Status Panel -->
-              <StackPanel Orientation="Horizontal" Spacing="6" Margin="0,0,0,4">
-                  <TextBlock Text="Playit (Túnel P/ Internet):" FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource BrushTextSecondary}"/>
-                  <TextBlock Text="{Binding TunnelStatusString}" FontSize="12" FontWeight="Bold" Foreground="{Binding TunnelStatusColor}"/>
+              <StackPanel Orientation="Horizontal" Spacing="6" Margin="0,0,0,4" VerticalAlignment="Center">
+                  <TextBlock Text="Playit (Túnel P/ Internet):" FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource BrushTextSecondary}" VerticalAlignment="Center"/>
+                  <Border Background="{Binding TunnelStatusColor}"
+                          CornerRadius="9999"
+                          Padding="8,2">
+                      <TextBlock Text="{Binding TunnelStatusString}" FontSize="10" FontWeight="Bold" Foreground="White" VerticalAlignment="Center"/>
+                  </Border>
               </StackPanel>
 
               <!-- Tunnel IP Box (Only visible if active) -->
@@ -93,16 +98,76 @@
                 </Button>
               </Border>
               
+              <!-- ── Backup Section ── -->
+              <Border Height="1" Background="{StaticResource BrushBgElevated}" Margin="0,8,0,8"/>
+              
+              <TextBlock Text="Backup" FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource BrushTextSecondary}" Margin="0,0,0,4"/>
+              
+              <StackPanel Spacing="6">
+                  <!-- Local Directory -->
+                  <Border Background="{StaticResource BrushBgBase}" CornerRadius="6" Padding="6,4">
+                      <Grid ColumnDefinitions="*,Auto">
+                          <StackPanel Grid.Column="0" Spacing="2">
+                              <TextBlock Text="Diretório Local" FontSize="11" Foreground="{StaticResource BrushTextMuted}" />
+                              <TextBlock Text="{Binding LocalBackupDirectory, FallbackValue='Nenhum selecionado'}" 
+                                         FontSize="11" Foreground="{StaticResource BrushTextPrimary}"
+                                         TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding LocalBackupDirectory}" />
+                          </StackPanel>
+                          <Button Grid.Column="1" Classes="ghost-btn" Padding="6,2" Margin="4,0,0,0" Click="SelectLocalBackupFolder_Click" ToolTip.Tip="Selecionar Pasta">
+                              <TextBlock Text="📁" FontSize="12"/>
+                          </Button>
+                      </Grid>
+                  </Border>
+                  
+                  <!-- Google Drive -->
+                  <Border Background="{StaticResource BrushBgBase}" CornerRadius="6" Padding="6,4">
+                      <Grid ColumnDefinitions="*,Auto">
+                          <StackPanel Grid.Column="0" Spacing="2">
+                              <CheckBox Content="Nuvem (Google Drive)" FontSize="11" Foreground="{StaticResource BrushTextPrimary}" 
+                                        IsChecked="{Binding EnableGoogleDriveBackup, Mode=TwoWay}"/>
+                              <StackPanel Orientation="Horizontal" Spacing="4" IsVisible="{Binding EnableGoogleDriveBackup}">
+                                  <TextBlock Text="{Binding IsGoogleDriveAuthenticated, StringFormat='{}{0}'}" 
+                                             IsVisible="False" /> <!-- Trigger bindings -->
+                                  <TextBlock Text="🔴 Não Autenticado" FontSize="10" Foreground="#EF4444" IsVisible="{Binding !IsGoogleDriveAuthenticated}" />
+                                  <TextBlock Text="🟢 Autenticado" FontSize="10" Foreground="#22C55E" IsVisible="{Binding IsGoogleDriveAuthenticated}" />
+                              </StackPanel>
+                          </StackPanel>
+                          
+                          <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4" IsVisible="{Binding EnableGoogleDriveBackup}">
+                              <Button Classes="ghost-btn" Padding="6,2" Command="{Binding AuthenticateGoogleDriveCommand}" IsVisible="{Binding !IsGoogleDriveAuthenticated}" ToolTip.Tip="Conectar">
+                                  <TextBlock Text="🔗" FontSize="12"/>
+                              </Button>
+                              <Button Classes="ghost-btn" Padding="6,2" Command="{Binding LogoutGoogleDriveCommand}" IsVisible="{Binding IsGoogleDriveAuthenticated}" ToolTip.Tip="Desconectar">
+                                  <TextBlock Text="❌" FontSize="12"/>
+                              </Button>
+                          </StackPanel>
+                      </Grid>
+                  </Border>
+
+                  <Button Content="💾 Fazer Backup Agora" 
+                          Command="{Binding RunBackupCommand}" 
+                          IsEnabled="{Binding !IsBackingUp}"
+                          Classes="primary-btn" 
+                          HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                          Margin="0,6,0,0"/>
+                  
+                  <TextBlock Text="{Binding BackupStatusMessage}" 
+                             FontSize="10" 
+                             Foreground="{StaticResource BrushAccentPrimaryHover}" 
+                             TextWrapping="Wrap" 
+                             IsVisible="{Binding BackupStatusMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+              </StackPanel>
+              
             </StackPanel>
 
           </StackPanel>
         </Border>
 
         <!-- ── Resource Gauges ─────────────────────────────── -->
-        <StackPanel Margin="16,16,16,0" Spacing="16">
+        <StackPanel Margin="16,12,16,0" Spacing="12">
 
           <!-- CPU gauge -->
-          <StackPanel Spacing="8">
+          <StackPanel Spacing="6">
             <Grid ColumnDefinitions="*,Auto">
               <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="6">
                 <TextBlock Text="CPU" FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource BrushTextSecondary}"/>
@@ -135,7 +200,7 @@
           </StackPanel>
 
           <!-- RAM gauge -->
-          <StackPanel Spacing="8">
+          <StackPanel Spacing="6">
             <Grid ColumnDefinitions="*,Auto">
               <TextBlock Grid.Column="0" Text="RAM" FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource BrushTextSecondary}"/>
               <TextBlock Grid.Column="1"
@@ -168,10 +233,10 @@
           <Border Height="1" Background="{StaticResource BrushBgElevated}" Margin="0,4"/>
 
           <!-- Stats row -->
-          <UniformGrid Columns="2" ColumnSpacing="12" RowSpacing="12">
+          <UniformGrid Columns="2" ColumnSpacing="12" RowSpacing="8">
 
             <!-- Uptime -->
-            <Border Background="{StaticResource BrushBgSurface}" CornerRadius="8" Padding="12,10">
+            <Border Background="{StaticResource BrushBgSurface}" CornerRadius="8" Padding="10,8">
               <StackPanel Spacing="4">
                 <TextBlock Text="⏱  Uptime" FontSize="10" Foreground="{StaticResource BrushTextMuted}"/>
                 <TextBlock Text="{Binding UptimeDisplay}"
@@ -181,7 +246,7 @@
             </Border>
 
             <!-- Players -->
-            <Border Background="{StaticResource BrushBgSurface}" CornerRadius="8" Padding="12,10">
+            <Border Background="{StaticResource BrushBgSurface}" CornerRadius="8" Padding="10,8">
               <StackPanel Spacing="4">
                 <TextBlock Text="👥  Jogadores" FontSize="10" Foreground="{StaticResource BrushTextMuted}"/>
                 <TextBlock Text="{Binding OnlinePlayers, StringFormat='{}{0} online'}"
@@ -194,10 +259,10 @@
         </StackPanel>
 
         <!-- Spacer -->
-        <Border Height="1" Background="{StaticResource BrushBgElevated}" Margin="16,16"/>
+        <Border Height="1" Background="{StaticResource BrushBgElevated}" Margin="16,12"/>
 
         <!-- Control buttons -->
-        <StackPanel Margin="16,0,16,16" Spacing="8">
+        <StackPanel Margin="16,0,16,12" Spacing="6">
           <Button Content="▶  Iniciar Servidor"
                   Command="{Binding StartServerCommand}"
                   IsVisible="{Binding !IsRunning}"
@@ -218,7 +283,8 @@
                   HorizontalContentAlignment="Center"/>
         </StackPanel>
 
-      </StackPanel>
+        </StackPanel>
+      </ScrollViewer>
     </Border>
 
     <!-- ══ MAIN AREA (Log terminal + console input) ═════════════════════════ -->
@@ -269,10 +335,17 @@
                       Command="{Binding ClearLogsCommand}"
                       Classes="ghost-btn"
                       Padding="12,6"/>
-              <Button Content="💾  Exportar"
-                      Command="{Binding ExportLogsCommand}"
+              <Button Content="📥  Importar"
                       Classes="ghost-btn"
-                      Padding="12,6"/>
+                      Padding="12,6"
+                      ToolTip.Tip="Importar um servidor existente (ZIP ou Pasta)">
+                  <Button.Flyout>
+                      <MenuFlyout>
+                          <MenuItem Header="Importar de arquivo (.zip)" Click="ImportServerZip_Click" />
+                          <MenuItem Header="Importar de diretório (pasta)" Click="ImportServerFolder_Click" />
+                      </MenuFlyout>
+                  </Button.Flyout>
+              </Button>
               <Button Content="⬅  Voltar ao Menu"
                       Command="{Binding ReturnToMenuCommand}"
                       Classes="ghost-btn"
@@ -288,7 +361,7 @@
               Background="#0A0C12"
               Margin="0">
         <ScrollViewer Name="LogScrollViewer"
-                      HorizontalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled"
                       VerticalScrollBarVisibility="Auto">
           <ItemsControl Name="LogItemsControl"
                         ItemsSource="{Binding FilteredLogs}"

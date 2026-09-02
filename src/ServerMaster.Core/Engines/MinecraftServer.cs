@@ -18,6 +18,7 @@ public sealed class MinecraftServer : IServerEngine, IAsyncDisposable
 
     private readonly ProcessManagerService  _processManager;
     private readonly ResourceMonitorService _resourceMonitor;
+    private readonly JavaManagerService     _javaManager;
 
     private ServerProfile  _profile = null!;
     private Process?       _process;
@@ -32,10 +33,11 @@ public sealed class MinecraftServer : IServerEngine, IAsyncDisposable
     public IObservable<LogEntry>        LogStream      => _logSubject;
     public IObservable<ResourceSnapshot> ResourceStream => _resourceSubject;
 
-    public MinecraftServer(ProcessManagerService processManager, ResourceMonitorService resourceMonitor)
+    public MinecraftServer(ProcessManagerService processManager, ResourceMonitorService resourceMonitor, JavaManagerService javaManager)
     {
         _processManager  = processManager;
         _resourceMonitor = resourceMonitor;
+        _javaManager     = javaManager;
 
         // Forward resource monitor output to our subject
         _resourceMonitor.ResourceStream.Subscribe(_resourceSubject);
@@ -73,22 +75,36 @@ public sealed class MinecraftServer : IServerEngine, IAsyncDisposable
         Emit(LogLevel.Information, "[ServerMaster] Preparação concluída. Pronto para iniciar.");
     }
 
-    public Task StartAsync(CancellationToken ct = default)
+    public async Task StartAsync(CancellationToken ct = default)
     {
         State = ServerState.Starting;
-        Emit(LogLevel.Information, "[ServerMaster] Iniciando processo Java…");
+        Emit(LogLevel.Information, "[ServerMaster] Verificando requisitos do Java…");
+
+        string javaPath;
+        try
+        {
+            javaPath = await _javaManager.EnsureJavaInstalledAsync(_profile.GameVersion, (msg) => Emit(LogLevel.Information, msg), ct);
+        }
+        catch (Exception ex)
+        {
+            Emit(LogLevel.Error, $"[ServerMaster] Falha ao configurar o Java: {ex.Message}");
+            State = ServerState.Stopped;
+            return;
+        }
+
+        Emit(LogLevel.Information, "[ServerMaster] Iniciando processo do servidor…");
 
         var args = BuildJavaArgs();
         
         try
         {
-            _process = _processManager.Start(_profile.ServerDirectory, "java", args);
+            _process = _processManager.Start(_profile.ServerDirectory, javaPath, args);
         }
         catch (System.ComponentModel.Win32Exception ex)
         {
             Emit(LogLevel.Error, $"[ServerMaster] ERRO CRÍTICO: Não foi possível iniciar o Java. Verifique se o JRE/JDK está instalado e acessível no PATH do Windows. Detalhes: {ex.Message}");
             State = ServerState.Stopped;
-            return Task.CompletedTask;
+            return;
         }
 
         _logCts  = new CancellationTokenSource();
@@ -106,8 +122,6 @@ public sealed class MinecraftServer : IServerEngine, IAsyncDisposable
             State = ServerState.Stopped;
             Emit(LogLevel.Warning, "[ServerMaster] Processo encerrado.");
         };
-
-        return Task.CompletedTask;
     }
 
     public async Task StopAsync(CancellationToken ct = default)

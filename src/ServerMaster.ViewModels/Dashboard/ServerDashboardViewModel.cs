@@ -18,6 +18,7 @@ public sealed partial class ServerDashboardViewModel : ObservableObject, IAsyncD
     private readonly List<IDisposable> _subscriptions = [];
     private readonly Stopwatch _uptimeWatch = new();
     private readonly DispatcherTimer _uptimeTimer;
+    private readonly IBackupService _backupService;
 
     // ── Profile Identity ─────────────────────────────────────────────────────
     [ObservableProperty] private string _serverName = "Meu Servidor";
@@ -74,10 +75,27 @@ public sealed partial class ServerDashboardViewModel : ObservableObject, IAsyncD
 
     public string GameType => Engine.GameType.ToString();
 
-    public ServerDashboardViewModel(IServerEngine engine, INetworkTunnel tunnel, ServerProfile profile)
+    // ── Backup ───────────────────────────────────────────────────────────────
+    [ObservableProperty] private bool _isGoogleDriveAuthenticated;
+    [ObservableProperty] private bool _isBackingUp;
+    [ObservableProperty] private string _backupStatusMessage = string.Empty;
+    public string LocalBackupDirectory => Profile.Backup.LocalBackupDirectory;
+    public bool EnableGoogleDriveBackup
+    {
+        get => Profile.Backup.EnableGoogleDriveBackup;
+        set
+        {
+            Profile.Backup.EnableGoogleDriveBackup = value;
+            OnPropertyChanged();
+            SaveProfile();
+        }
+    }
+
+    public ServerDashboardViewModel(IServerEngine engine, INetworkTunnel tunnel, IBackupService backupService, ServerProfile profile)
     {
         Engine = engine;
         _tunnel = tunnel;
+        _backupService = backupService;
         Profile = profile;
         
         ServerName = profile.Name;
@@ -114,6 +132,32 @@ public sealed partial class ServerDashboardViewModel : ObservableObject, IAsyncD
             : "00:00:00";
 
         SubscribeToStreams();
+        _ = CheckGoogleDriveAuthAsync();
+    }
+
+    private async Task CheckGoogleDriveAuthAsync()
+    {
+        IsGoogleDriveAuthenticated = await _backupService.IsGoogleDriveAuthenticatedAsync();
+    }
+
+    public void UpdateLocalBackupDirectory(string path)
+    {
+        Profile.Backup.LocalBackupDirectory = path;
+        OnPropertyChanged(nameof(LocalBackupDirectory));
+        SaveProfile();
+    }
+
+    private void SaveProfile()
+    {
+        var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+        var reposPath = Path.Combine(appData, "ServerMaster", "Servers");
+        var filePath = Path.Combine(reposPath, $"{Profile.Id}.json");
+        try
+        {
+            var json = System.Text.Json.JsonSerializer.Serialize(Profile);
+            File.WriteAllText(filePath, json);
+        }
+        catch { }
     }
 
     partial void OnLogFilterChanged(string value)
@@ -296,15 +340,104 @@ public sealed partial class ServerDashboardViewModel : ObservableObject, IAsyncD
         ReturnToMenuRequested?.Invoke(this, EventArgs.Empty);
     }
 
-    [RelayCommand]
-    private async Task ExportLogsAsync()
+    public async Task ImportServerAsync(string sourcePath)
     {
-        var path = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
-            $"ServerMaster_Logs_{DateTime.Now:yyyyMMdd_HHmmss}.txt");
+        if (string.IsNullOrWhiteSpace(sourcePath)) return;
+        
+        try
+        {
+            if (File.Exists(sourcePath) && sourcePath.EndsWith(".zip", StringComparison.OrdinalIgnoreCase))
+            {
+                Dispatcher.UIThread.Post(() =>
+                {
+                    Logs.Add(new LogEntry(DateTimeOffset.Now, LogLevel.Information, "[ServerMaster] Extraindo arquivos do ZIP..."));
+                    FilterLogs();
+                });
+                
+                await Task.Run(() => System.IO.Compression.ZipFile.ExtractToDirectory(sourcePath, Profile.ServerDirectory, true));
+            }
+            else if (Directory.Exists(sourcePath))
+            {
+                Dispatcher.UIThread.Post(() =>
+                {
+                    Logs.Add(new LogEntry(DateTimeOffset.Now, LogLevel.Information, "[ServerMaster] Copiando arquivos do diretório..."));
+                    FilterLogs();
+                });
+                
+                await Task.Run(() => 
+                {
+                    foreach (string dirPath in Directory.GetDirectories(sourcePath, "*", SearchOption.AllDirectories))
+                    {
+                        Directory.CreateDirectory(dirPath.Replace(sourcePath, Profile.ServerDirectory));
+                    }
+                    foreach (string newPath in Directory.GetFiles(sourcePath, "*.*", SearchOption.AllDirectories))
+                    {
+                        File.Copy(newPath, newPath.Replace(sourcePath, Profile.ServerDirectory), true);
+                    }
+                });
+            }
 
-        var lines = Logs.Select(l => $"[{l.Timestamp:HH:mm:ss}] [{l.Level}] {l.Message}");
-        await File.WriteAllLinesAsync(path, lines);
+            Dispatcher.UIThread.Post(() =>
+            {
+                Logs.Add(new LogEntry(DateTimeOffset.Now, LogLevel.Information, "[ServerMaster] Servidor importado com sucesso!"));
+                FilterLogs();
+            });
+        }
+        catch (Exception ex)
+        {
+            Dispatcher.UIThread.Post(() =>
+            {
+                Logs.Add(new LogEntry(DateTimeOffset.Now, LogLevel.Error, $"[ServerMaster] Erro ao importar servidor: {ex.Message}"));
+                FilterLogs();
+            });
+        }
+    }
+
+    [RelayCommand]
+    private async Task AuthenticateGoogleDriveAsync()
+    {
+        try
+        {
+            BackupStatusMessage = "Autenticando no Google Drive...";
+            IsGoogleDriveAuthenticated = await _backupService.AuthenticateGoogleDriveAsync();
+            BackupStatusMessage = IsGoogleDriveAuthenticated ? "Autenticado com sucesso." : "Falha na autenticação.";
+        }
+        catch (Exception ex)
+        {
+            BackupStatusMessage = $"Erro: {ex.Message}";
+        }
+    }
+
+    [RelayCommand]
+    private async Task LogoutGoogleDriveAsync()
+    {
+        await _backupService.LogoutGoogleDriveAsync();
+        IsGoogleDriveAuthenticated = false;
+        BackupStatusMessage = "Desconectado do Google Drive.";
+    }
+
+    [RelayCommand]
+    private async Task RunBackupAsync()
+    {
+        if (IsBackingUp) return;
+        
+        IsBackingUp = true;
+        BackupStatusMessage = "Iniciando backup...";
+        
+        var success = await _backupService.RunBackupAsync(Profile, msg => 
+        {
+            Dispatcher.UIThread.Post(() => BackupStatusMessage = msg);
+        });
+
+        if (success)
+        {
+            BackupStatusMessage = "Backup concluído com sucesso!";
+        }
+        
+        // Wait a bit before clearing the message
+        await Task.Delay(3000);
+        BackupStatusMessage = string.Empty;
+        IsBackingUp = false;
     }
 
     public async ValueTask DisposeAsync()

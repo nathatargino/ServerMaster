@@ -29,10 +29,12 @@ public partial class App : Application
         // Core services
         services.AddTransient<ProcessManagerService>();
         services.AddTransient<ResourceMonitorService>();
+        services.AddTransient<JavaManagerService>();
         services.AddTransient<INetworkTunnel, PlayitTunnelService>();
         services.AddSingleton<IServerFactory, ServerEngineFactory>();
         services.AddSingleton<AppSettingsService>();
         services.AddSingleton<ServerRepository>();
+        services.AddSingleton<IBackupService, BackupService>();
         services.AddSingleton<ServerMaster.ViewModels.Services.SessionManager>();
 
         // ViewModels
@@ -104,7 +106,8 @@ public partial class App : Application
                 var tunnel = Services.GetRequiredService<Core.Abstractions.INetworkTunnel>();
                 tunnel.Initialize(wizard.FinalProfile!); // FIX: Ensure tunnel receives the profile immediately after creation
 
-                var dash = new ServerDashboardViewModel(engine, tunnel, wizard.FinalProfile!);
+                var backup = Services.GetRequiredService<IBackupService>();
+                var dash = new ServerDashboardViewModel(engine, tunnel, backup, wizard.FinalProfile!);
                 
                 var sessions = Services.GetRequiredService<ServerMaster.ViewModels.Services.SessionManager>();
                 sessions.Register(wizard.FinalProfile!.Id, dash);
@@ -157,12 +160,13 @@ public partial class App : Application
             {
                 var engineFactory = Services.GetRequiredService<Core.Abstractions.IServerFactory>();
                 var tunnel = Services.GetRequiredService<Core.Abstractions.INetworkTunnel>();
+                var backup = Services.GetRequiredService<IBackupService>();
                 
                 var engine = engineFactory.Create(profile);
                 engine.Initialize(profile); // FIX: Ensure engine receives the profile!
                 tunnel.Initialize(profile); // FIX: Ensure tunnel receives the profile!
                 
-                dash = new ServerDashboardViewModel(engine, tunnel, profile);
+                dash = new ServerDashboardViewModel(engine, tunnel, backup, profile);
                 sessions.Register(profile.Id, dash);
             }
 

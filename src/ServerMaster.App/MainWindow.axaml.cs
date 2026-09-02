@@ -11,20 +11,4 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
     }
-
-    private void TitleBar_PointerPressed(object? sender, PointerPressedEventArgs e)
-    {
-        if (e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
-            BeginMoveDrag(e);
-    }
-
-    private void MinimizeWindow(object? sender, RoutedEventArgs e) =>
-        WindowState = WindowState.Minimized;
-
-    private void MaximizeWindow(object? sender, RoutedEventArgs e) =>
-        WindowState = WindowState == WindowState.Maximized
-            ? WindowState.Normal
-            : WindowState.Maximized;
-
-    private void CloseWindow(object? sender, RoutedEventArgs e) => Close();
 }

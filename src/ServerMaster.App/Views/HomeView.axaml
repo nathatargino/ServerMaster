@@ -76,7 +76,9 @@
                                         <TextBlock Text="{Binding GameType}" FontSize="10" FontWeight="Bold" Foreground="{StaticResource BrushPrimary}"/>
                                         <TextBlock Text="{Binding ServerName}" FontSize="14" FontWeight="SemiBold" Foreground="{StaticResource BrushTextPrimary}"/>
                                         <TextBlock Text="{Binding PublicAddress}" FontSize="12" FontWeight="Medium" Foreground="{StaticResource BrushTextSecondary}" IsVisible="{Binding HasPublicAddress}" TextWrapping="Wrap" />
-                                        <TextBlock Text="{Binding TunnelState}" FontSize="11" Foreground="{StaticResource BrushTextMuted}" />
+                                        <Border HorizontalAlignment="Left" Background="{Binding TunnelStatusColor}" CornerRadius="9999" Padding="6,2" Margin="0,4,0,0">
+                                            <TextBlock Text="{Binding TunnelStatusString}" FontSize="10" FontWeight="Bold" Foreground="White" />
+                                        </Border>
                                     </StackPanel>
                                 </Border>
                             </DataTemplate>

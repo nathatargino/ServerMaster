@@ -38,6 +38,9 @@ public sealed record ServerProfile
     /// <summary>Absolute path to the server root directory.</summary>
     public string ServerDirectory { get; init; } = string.Empty;
 
+    // ── Backup ───────────────────────────────────────────────────────────────
+    public BackupSettings Backup { get; set; } = new();
+
     public DateTimeOffset CreatedAt { get; init; } = DateTimeOffset.Now;
 }
 
@@ -58,4 +61,12 @@ public enum NetworkMode
     LanOnly,
     PortForwarded,
     PlayitTunnel
+}
+
+/// <summary>Backup settings for a server.</summary>
+public sealed record BackupSettings
+{
+    public string LocalBackupDirectory { get; set; } = string.Empty;
+    public bool EnableGoogleDriveBackup { get; set; } = false;
+    public string GoogleDriveFolderId { get; set; } = string.Empty;
 }
