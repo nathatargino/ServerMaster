@@ -14,9 +14,14 @@ public class JavaManagerService
         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
         "ServerMaster", "Runtimes");
 
-    public async Task<string> EnsureJavaInstalledAsync(string gameVersion, Action<string> logEmit, CancellationToken ct = default)
+    public Task<string> EnsureJavaInstalledAsync(string gameVersion, Action<string> logEmit, CancellationToken ct = default)
     {
         int javaVersion = GetRequiredJavaVersion(gameVersion);
+        return EnsureJavaInstalledAsync(javaVersion, logEmit, ct);
+    }
+
+    public async Task<string> EnsureJavaInstalledAsync(int javaVersion, Action<string> logEmit, CancellationToken ct = default)
+    {
         string javaDir = Path.Combine(RuntimesRoot, $"Java-{javaVersion}");
         
         Directory.CreateDirectory(RuntimesRoot);
@@ -27,18 +32,31 @@ public class JavaManagerService
             return javaExe; // Already downloaded and extracted
         }
 
-        logEmit($"[ServerMaster] Baixando Java {javaVersion} (necessário para a versão {gameVersion})...");
+        logEmit($"[ServerMaster] Baixando Java {javaVersion}...");
         
-        // Use Adoptium API to download latest Eclipse Temurin JRE
-        string downloadUrl = $"https://api.adoptium.net/v3/binary/latest/{javaVersion}/ga/windows/x64/jre/hotspot/normal/eclipse";
+        string downloadUrlGA = $"https://api.adoptium.net/v3/binary/latest/{javaVersion}/ga/windows/x64/jre/hotspot/normal/eclipse";
+        string downloadUrlEA = $"https://api.adoptium.net/v3/binary/latest/{javaVersion}/ea/windows/x64/jre/hotspot/normal/eclipse";
         
         string zipPath = Path.Combine(RuntimesRoot, $"java-{javaVersion}-temp.zip");
 
         try
         {
             using var http = new HttpClient();
-            using var response = await http.GetAsync(downloadUrl, HttpCompletionOption.ResponseHeadersRead, ct);
-            response.EnsureSuccessStatusCode();
+            HttpResponseMessage? responseRef = null;
+            
+            try 
+            {
+                responseRef = await http.GetAsync(downloadUrlGA, HttpCompletionOption.ResponseHeadersRead, ct);
+                responseRef.EnsureSuccessStatusCode();
+            }
+            catch (HttpRequestException)
+            {
+                // Fallback to Early Access (EA) if GA is not found
+                responseRef = await http.GetAsync(downloadUrlEA, HttpCompletionOption.ResponseHeadersRead, ct);
+                responseRef.EnsureSuccessStatusCode();
+            }
+
+            using var response = responseRef;
 
             var totalBytes = response.Content.Headers.ContentLength;
             using var stream = await response.Content.ReadAsStreamAsync(ct);

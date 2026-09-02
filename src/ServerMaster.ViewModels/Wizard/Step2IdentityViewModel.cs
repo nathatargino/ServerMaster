@@ -81,19 +81,36 @@ public sealed partial class Step2IdentityViewModel : ObservableObject
     {
         if (!IsMinecraft) 
         { 
-            Dispatcher.UIThread.Post(() => 
+            try
             {
-                AvailableVersions.Clear();
-                // User requested Hytale versions starting from 0.6.2
-                var hytaleVersions = new[] { 
-                    "0.6.2", "0.6.1", "0.6.0", "0.5.9", "0.5.8", 
-                    "0.5.7", "0.5.6", "0.5.5", "0.5.4", "0.5.3" 
-                };
-                foreach (var v in hytaleVersions)
-                    AvailableVersions.Add(v);
-                
-                SelectedVersion = AvailableVersions.FirstOrDefault();
-            });
+                using var http = new HttpClient();
+                // We use a GitHub raw URL to host a simple JSON array of Hytale versions
+                var json = await http.GetStringAsync("https://raw.githubusercontent.com/nathatargino/ServerMaster/main/hytale-versions.json").ConfigureAwait(false);
+                var versions = System.Text.Json.JsonSerializer.Deserialize<string[]>(json);
+
+                Dispatcher.UIThread.Post(() => 
+                {
+                    AvailableVersions.Clear();
+                    if (versions != null)
+                    {
+                        foreach (var v in versions)
+                            AvailableVersions.Add(v);
+                    }
+                    
+                    if (AvailableVersions.Count == 0)
+                        AddHytaleFallbacks();
+
+                    SelectedVersion = AvailableVersions.FirstOrDefault();
+                });
+            }
+            catch
+            {
+                Dispatcher.UIThread.Post(() => 
+                {
+                    AddHytaleFallbacks();
+                    SelectedVersion = AvailableVersions.FirstOrDefault();
+                });
+            }
             return; 
         }
 
@@ -124,8 +141,7 @@ public sealed partial class Step2IdentityViewModel : ObservableObject
                 // Fallback in case regex missed completely
                 if (AvailableVersions.Count == 0)
                 {
-                    foreach (var v in new[] { "1.21.4", "1.21.3", "1.21.2", "1.21.1", "1.21", "1.20.6", "1.20.4", "1.20.2", "1.20.1", "1.19.4" })
-                        AvailableVersions.Add(v);
+                    AddMinecraftFallbacks();
                 }
 
                 SelectedVersion = AvailableVersions.FirstOrDefault();
@@ -136,12 +152,29 @@ public sealed partial class Step2IdentityViewModel : ObservableObject
             // Fallback popular versions if no internet
             Dispatcher.UIThread.Post(() => 
             {
-                AvailableVersions.Clear();
-                foreach (var v in new[] { "1.21.4", "1.21.3", "1.21.2", "1.21.1", "1.21", "1.20.6", "1.20.4", "1.20.2", "1.20.1", "1.19.4" })
-                    AvailableVersions.Add(v);
-                SelectedVersion = "1.21.4";
+                AddMinecraftFallbacks();
+                SelectedVersion = AvailableVersions.FirstOrDefault();
             });
         }
+    }
+
+    private void AddHytaleFallbacks()
+    {
+        AvailableVersions.Clear();
+        var hytaleVersions = new[] { 
+            "0.6.5", "0.6.4", "0.6.3", "0.6.2", "0.6.1", 
+            "0.6.0", "0.5.9", "0.5.8", "0.5.7", "0.5.6" 
+        };
+        foreach (var v in hytaleVersions)
+            AvailableVersions.Add(v);
+    }
+
+    private void AddMinecraftFallbacks()
+    {
+        AvailableVersions.Clear();
+        var mcVersions = new[] { "1.21.4", "1.21.3", "1.21.2", "1.21.1", "1.21", "1.20.6", "1.20.4", "1.20.2", "1.20.1", "1.19.4" };
+        foreach (var v in mcVersions)
+            AvailableVersions.Add(v);
     }
 }
 

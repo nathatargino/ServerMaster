@@ -104,6 +104,20 @@ public sealed class PlayitTunnelService : INetworkTunnel, IAsyncDisposable
             return; // don't try to parse a URL as an address
         }
 
+        // Handle invalid secrets
+        if (clean.Contains("Invalid secret", StringComparison.OrdinalIgnoreCase))
+        {
+            Log("[Playit] ⚠️ Segredo expirado ou inválido detectado! Excluindo cache local...");
+            try { if (File.Exists(SecretPath)) File.Delete(SecretPath); } catch {}
+            _statusSubject.OnNext(new TunnelStatus(TunnelState.Disconnected, "Segredo expirado. Reinicie o servidor."));
+            
+            try {
+                if (_tunnelProcess is { HasExited: false }) 
+                    _tunnelProcess.Kill(entireProcessTree: true);
+            } catch {}
+            return;
+        }
+
         // Detect when tunnels are ready and mapped
         var match = System.Text.RegularExpressions.Regex.Match(clean, @"(\d+) tunnels registered");
         if (match.Success && int.TryParse(match.Groups[1].Value, out var tunnels) && tunnels > 0)
@@ -157,9 +171,18 @@ public sealed class PlayitTunnelService : INetworkTunnel, IAsyncDisposable
                         string? display = null;
                         
                         if (alloc.TryGetProperty("assigned_domain", out var ad) && ad.ValueKind == System.Text.Json.JsonValueKind.String)
+                        {
                             display = ad.GetString();
-                        else if (alloc.TryGetProperty("ip_hostname", out var ipHost) && alloc.TryGetProperty("port_start", out var ps))
-                            display = $"{ipHost.GetString()}:{ps.GetInt32()}";
+                            // Hytale/UDP tunnels do not resolve SRV records, so we MUST append the port
+                            if (t.TryGetProperty("port_type", out var pt) && pt.GetString() == "udp" && alloc.TryGetProperty("port_start", out var ps))
+                            {
+                                display = $"{display}:{ps.GetInt32()}";
+                            }
+                        }
+                        else if (alloc.TryGetProperty("ip_hostname", out var ipHost) && alloc.TryGetProperty("port_start", out var ps2))
+                        {
+                            display = $"{ipHost.GetString()}:{ps2.GetInt32()}";
+                        }
                         
                         if (!string.IsNullOrEmpty(display))
                         {
@@ -268,6 +291,7 @@ public sealed class PlayitTunnelService : INetworkTunnel, IAsyncDisposable
                 if (!line.Contains("Failed to write", StringComparison.OrdinalIgnoreCase) && 
                     !line.Contains("Failed to flush", StringComparison.OrdinalIgnoreCase) &&
                     !line.Contains("failed to send initial ping", StringComparison.OrdinalIgnoreCase) &&
+                    !line.Contains("failed to ping tunnel server", StringComparison.OrdinalIgnoreCase) &&
                     !line.Contains("NetworkUnreachable", StringComparison.OrdinalIgnoreCase))
                 {
                     // For now, we just log these. Playit's process exit will handle actual fatal crashes.

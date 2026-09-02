@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.IO.Compression;
 using System.Reactive.Subjects;
 using System.Text.Json;
@@ -15,6 +15,7 @@ public sealed class HytaleServer : IServerEngine, IAsyncDisposable
 {
     private readonly ProcessManagerService  _processManager;
     private readonly ResourceMonitorService _resourceMonitor;
+    private readonly JavaManagerService     _javaManager;
 
     private readonly Subject<LogEntry>        _logSubject      = new();
     private readonly Subject<ResourceSnapshot> _resourceSubject = new();
@@ -27,12 +28,12 @@ public sealed class HytaleServer : IServerEngine, IAsyncDisposable
     private ServerProfile  _profile = null!;
     private Process?       _process;
     private CancellationTokenSource? _logCts;
-    private bool           _isMockMode;
 
-    public HytaleServer(ProcessManagerService processManager, ResourceMonitorService resourceMonitor)
+    public HytaleServer(ProcessManagerService processManager, ResourceMonitorService resourceMonitor, JavaManagerService javaManager)
     {
         _processManager  = processManager;
         _resourceMonitor = resourceMonitor;
+        _javaManager     = javaManager;
         _resourceMonitor.ResourceStream.Subscribe(_resourceSubject);
     }
 
@@ -52,10 +53,42 @@ public sealed class HytaleServer : IServerEngine, IAsyncDisposable
 
             var packageJsonPath = Path.Combine(_profile.ServerDirectory, "package.json");
             var appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-            var hytalePath = Path.Combine(appDataPath, @"Hytale\install\release\package\game\latest");
-            var hytaleServerPath = Path.Combine(hytalePath, "Server");
             
-            var hasRealJar = File.Exists(Path.Combine(hytaleServerPath, "HytaleServer.jar"));
+            // Determine the jar path based on the selected version
+            var runtimesDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Runtimes", "Hytale", _profile.GameVersion);
+            Directory.CreateDirectory(runtimesDir);
+            var hytaleServerJar = Path.Combine(runtimesDir, "HytaleServer.jar");
+            
+            var hasRealJar = File.Exists(hytaleServerJar);
+
+            if (!hasRealJar)
+            {
+                // Attempt to download the specific version from our community GitHub mock endpoint
+                progress?.Report($"Baixando Hytale Server {_profile.GameVersion}...");
+                Emit(LogLevel.Information, $"[ServerMaster] Baixando HytaleServer.jar {_profile.GameVersion} da nuvem comunitária...");
+                
+                try
+                {
+                    using var http = new HttpClient();
+                    var url = $"https://raw.githubusercontent.com/nathatargino/ServerMaster/main/hytale-bins/{_profile.GameVersion}/HytaleServer.jar";
+                    var bytes = await http.GetByteArrayAsync(url, ct);
+                    await File.WriteAllBytesAsync(hytaleServerJar, bytes, ct);
+                    hasRealJar = true;
+                }
+                catch
+                {
+                    Emit(LogLevel.Warning, $"[ServerMaster] Não foi possível baixar a versão {_profile.GameVersion} da nuvem.");
+                    
+                    // Fallback to local client installation if cloud fails
+                    var localHytalePath = Path.Combine(appDataPath, @"Hytale\install\release\package\game\latest\Server\HytaleServer.jar");
+                    if (File.Exists(localHytalePath))
+                    {
+                        Emit(LogLevel.Information, "[ServerMaster] Usando versão de fallback local do launcher.");
+                        File.Copy(localHytalePath, hytaleServerJar, true);
+                        hasRealJar = true;
+                    }
+                }
+            }
 
             if (!hasRealJar)
             {
@@ -71,8 +104,6 @@ public sealed class HytaleServer : IServerEngine, IAsyncDisposable
                 {
                     progress?.Report("Gerando arquitetura Node.js do Hytale Mock (UDP)...");
                     Emit(LogLevel.Information, "[ServerMaster] Construindo ambiente de Rede UDP (Hytale Node Server)...");
-
-                    _isMockMode = true;
 
                     var serverJsStr = @"const dgram = require('dgram');
 const server = dgram.createSocket('udp4');
@@ -115,8 +146,8 @@ server.bind(port);";
             }
             else
             {
-                progress?.Report("Identificada Engine Oficial Hytale (Java)...");
-                Emit(LogLevel.Information, "[ServerMaster] HytaleServer.jar encontrado! Executaremos o backend autÃªntico atravÃ©s da JVM.");
+                progress?.Report($"Identificada Engine Oficial Hytale (v{_profile.GameVersion})...");
+                Emit(LogLevel.Information, $"[ServerMaster] HytaleServer.jar (v{_profile.GameVersion}) encontrado! Executaremos o backend autêntico através da JVM.");
             }
 
             // Write eula.txt
@@ -152,7 +183,7 @@ server.bind(port);";
         }
     }
 
-    public Task StartAsync(CancellationToken ct = default)
+    public async Task StartAsync(CancellationToken ct = default)
     {
         if (_profile == null) throw new InvalidOperationException("O servidor nÃ£o foi preparado.");
 
@@ -161,21 +192,38 @@ server.bind(port);";
 
         try
         {
-            Emit(LogLevel.Information, "[ServerMaster] Preparando inicializaÃ§Ã£o da Engine (Node.js Hytale Mock)...");
+            Emit(LogLevel.Information, "[ServerMaster] Preparando inicialização da Engine...");
 
-            var appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-        var hytalePath = Path.Combine(appDataPath, @"Hytale\install\release\package\game\latest");
-        var hytaleServerPath = Path.Combine(hytalePath, "Server");
-        
-        var hasRealJar = File.Exists(Path.Combine(hytaleServerPath, "HytaleServer.jar"));
+            var runtimesDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Runtimes", "Hytale", p.GameVersion ?? "");
+            var hytaleServerJar = Path.Combine(runtimesDir, "HytaleServer.jar");
+            
+            var hasRealJar = File.Exists(hytaleServerJar);
+            
+            if (!hasRealJar)
+            {
+                // Fallback to local launcher installation for legacy servers that weren't "prepared"
+                var appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+                var fallbackJar = Path.Combine(appDataPath, @"Hytale\install\release\package\game\latest\Server\HytaleServer.jar");
+                if (File.Exists(fallbackJar))
+                {
+                    hytaleServerJar = fallbackJar;
+                    hasRealJar = true;
+                    Emit(LogLevel.Warning, "[ServerMaster] Aviso: Usando engine local antiga. Crie um novo servidor para aplicar as versões mais recentes (ex: 0.6.3).");
+                }
+            }
 
-        var cmd = hasRealJar ? "java" : "node";
+        var cmd = "node";
+        if (hasRealJar)
+        {
+            cmd = await _javaManager.EnsureJavaInstalledAsync(25, (msg) => Emit(LogLevel.Information, msg), ct);
+        }
+
         var ram = p.Resources;
         var args = hasRealJar 
-            ? $"-Xms{ram.RamMinMb}M -Xmx{ram.RamMb}M -XX:+UseG1GC -jar HytaleServer.jar --assets ../Assets.zip --bind 0.0.0.0:{p.Port} --backup --backup-dir backups --backup-frequency 30"
+            ? $"-Xms{ram.RamMinMb}M -Xmx{ram.RamMb}M -XX:+UseG1GC -jar \"{hytaleServerJar}\" --assets ../Assets.zip --bind 0.0.0.0:{p.Port} --auth-mode offline --backup --backup-dir backups --backup-frequency 30"
             : "server.js";
 
-        var execContext = hasRealJar ? hytaleServerPath : p.ServerDirectory;
+        var execContext = hasRealJar ? Path.GetDirectoryName(hytaleServerJar) : p.ServerDirectory;
 
         try
         {
@@ -191,7 +239,7 @@ server.bind(port);";
             Emit(LogLevel.Error, $"[ServerMaster] ERRO CRÃTICO: NÃ£o foi possÃ­vel iniciar o executÃ¡vel '{cmd}'. " + 
                                  "Ele estÃ¡ acessÃ­vel no PATH do Windows? Detalhes: " + ex.Message);
             State = ServerState.Stopped;
-            return Task.CompletedTask;
+            return;
         }
 
             _logCts  = new CancellationTokenSource();
@@ -217,8 +265,6 @@ server.bind(port);";
             Emit(LogLevel.Error, $"[ServerMaster] Falha ao iniciar o Hytale: {ex.Message}");
             throw;
         }
-
-        return Task.CompletedTask;
     }
 
 
