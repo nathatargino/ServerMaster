@@ -248,11 +248,11 @@ server.bind(port);";
 
         var ram = p.Resources;
         var args = hasRealJar 
-            ? $"-Xms{ram.RamMinMb}M -Xmx{ram.RamMb}M -XX:+UseG1GC -jar \"{hytaleServerJar}\" --assets \"{Path.Combine(Path.GetDirectoryName(hytaleServerJar), "..", "Assets.zip")}\" --bind 0.0.0.0:{p.Port} --auth-mode AUTHENTICATED --backup --backup-dir backups --backup-frequency 30"
+            ? $"-Xms{ram.RamMinMb}M -Xmx{ram.RamMb}M -XX:+UseG1GC -jar \"{hytaleServerJar}\" --assets \"{Path.Combine(Path.GetDirectoryName(hytaleServerJar) ?? "", "..", "Assets.zip")}\" --bind 0.0.0.0:{p.Port} --auth-mode AUTHENTICATED --backup --backup-dir backups --backup-frequency 30"
             : "server.js";
 
         var isIsolated = hytaleServerJar.StartsWith(p.ServerDirectory, StringComparison.OrdinalIgnoreCase);
-        var execContext = isIsolated ? p.ServerDirectory : Path.GetDirectoryName(hytaleServerJar);
+        var execContext = isIsolated ? p.ServerDirectory : (Path.GetDirectoryName(hytaleServerJar) ?? string.Empty);
         
         if (isIsolated)
         {
