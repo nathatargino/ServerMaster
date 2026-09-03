@@ -77,7 +77,7 @@ public sealed class AutoUpdaterService
             
             if (string.IsNullOrEmpty(latestTag)) return;
             
-            if (latestTag == currentVersion || latestTag == "v" + currentVersion || currentVersion.StartsWith(latestTag)) return;
+            if (latestTag == currentVersion || latestTag == "v" + currentVersion || latestTag.StartsWith("v" + currentVersion + "-")) return;
 
             // Locate the .exe asset
             var assets = root.GetProperty("assets");
@@ -121,3 +121,4 @@ public sealed class AutoUpdaterService
         }
     }
 }
+
