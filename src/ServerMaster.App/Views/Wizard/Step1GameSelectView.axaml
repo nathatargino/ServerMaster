@@ -1,6 +1,7 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="clr-namespace:ServerMaster.ViewModels.Wizard;assembly=ServerMaster.ViewModels"
+             xmlns:ic="using:FluentIcons.Avalonia"
              x:Class="ServerMaster.App.Views.Wizard.Step1GameSelectView"
              x:DataType="vm:Step1GameSelectViewModel"
              Background="{StaticResource BrushBgBase}">
@@ -97,8 +98,11 @@
                          FontSize="11" Foreground="{StaticResource BrushTextMuted}" HorizontalAlignment="Center"/>
             </StackPanel>
             <Border Background="{StaticResource BrushBgElevated}" CornerRadius="9999" Padding="12,4">
-              <TextBlock Text="🔙 Cancelar e Voltar" FontSize="11" FontWeight="SemiBold"
-                         Foreground="{StaticResource BrushTextMuted}" HorizontalAlignment="Center"/>
+              <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
+                <ic:SymbolIcon Symbol="ArrowLeft" VerticalAlignment="Center"/>
+                <TextBlock Text="Cancelar e Voltar" FontSize="11" FontWeight="SemiBold"
+                           Foreground="{StaticResource BrushTextMuted}" VerticalAlignment="Center"/>
+              </StackPanel>
             </Border>
           </StackPanel>
         </Border>

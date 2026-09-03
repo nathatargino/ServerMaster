@@ -3,6 +3,7 @@
              xmlns:vm="clr-namespace:ServerMaster.ViewModels.Dashboard;assembly=ServerMaster.ViewModels"
              xmlns:models="clr-namespace:ServerMaster.Core.Models;assembly=ServerMaster.Core"
              xmlns:conv="clr-namespace:ServerMaster.App.Converters"
+             xmlns:ic="using:FluentIcons.Avalonia"
              x:Class="ServerMaster.App.Views.Dashboard.ServerDashboardView"
              x:DataType="vm:ServerDashboardViewModel"
              Background="{StaticResource BrushBgBase}">
@@ -65,10 +66,10 @@
                 <Button Classes="ghost-btn" Padding="8,4" Background="Transparent" 
                         Click="CopyLocalIp_Click" ToolTip.Tip="Copiar IP Local (LAN)">
                   <StackPanel Orientation="Horizontal" Spacing="6">
-                    <TextBlock Text="🏠" FontSize="12"/>
+                    <ic:SymbolIcon Symbol="Home" VerticalAlignment="Center" FontSize="12"/>
                     <TextBlock Text="{Binding LocalAddress}"
                                FontSize="11" Foreground="{StaticResource BrushAccentPrimary}"
-                               FontFamily="Cascadia Code,Consolas,monospace"/>
+                               FontFamily="Cascadia Code,Consolas,monospace" VerticalAlignment="Center"/>
                   </StackPanel>
                 </Button>
               </Border>
@@ -89,11 +90,11 @@
                 <Button Classes="ghost-btn" Padding="8,4" Background="Transparent" 
                         Click="CopyPublicIp_Click" ToolTip.Tip="Copiar IP Público (Playit.gg)">
                   <StackPanel Orientation="Horizontal" Spacing="6">
-                    <TextBlock Text="🌐" FontSize="12"/>
+                    <ic:SymbolIcon Symbol="Globe" VerticalAlignment="Center" FontSize="12"/>
                     <TextBlock Text="{Binding PublicAddress}"
                                FontSize="11" Foreground="{StaticResource BrushAccentPrimaryHover}"
                                FontFamily="Cascadia Code,Consolas,monospace"
-                               TextTrimming="CharacterEllipsis"/>
+                               TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/>
                   </StackPanel>
                 </Button>
               </Border>
@@ -105,19 +106,18 @@
               
               <StackPanel Spacing="6">
                   <!-- Local Directory -->
-                  <Border Background="{StaticResource BrushBgBase}" CornerRadius="6" Padding="6,4">
+                  <Button Classes="ghost-btn" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" 
+                          Padding="6,4" Click="SelectLocalBackupFolder_Click" ToolTip.Tip="Alterar pasta de backup local">
                       <Grid ColumnDefinitions="*,Auto">
-                          <StackPanel Grid.Column="0" Spacing="2">
+                          <StackPanel Grid.Column="0" Spacing="2" HorizontalAlignment="Left">
                               <TextBlock Text="Diretório Local" FontSize="11" Foreground="{StaticResource BrushTextMuted}" />
                               <TextBlock Text="{Binding LocalBackupDirectory, FallbackValue='Nenhum selecionado'}" 
                                          FontSize="11" Foreground="{StaticResource BrushTextPrimary}"
                                          TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding LocalBackupDirectory}" />
                           </StackPanel>
-                          <Button Grid.Column="1" Classes="ghost-btn" Padding="6,2" Margin="4,0,0,0" Click="SelectLocalBackupFolder_Click" ToolTip.Tip="Selecionar Pasta">
-                              <TextBlock Text="📁" FontSize="12"/>
-                          </Button>
+                          <ic:SymbolIcon Grid.Column="1" Symbol="Folder" FontSize="14" Foreground="{StaticResource BrushTextSecondary}" VerticalAlignment="Center" Margin="4,0,0,0"/>
                       </Grid>
-                  </Border>
+                  </Button>
                   
                   <!-- Google Drive -->
                   <Border Background="{StaticResource BrushBgBase}" CornerRadius="6" Padding="6,4">
@@ -135,21 +135,25 @@
                           
                           <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4" IsVisible="{Binding EnableGoogleDriveBackup}">
                               <Button Classes="ghost-btn" Padding="6,2" Command="{Binding AuthenticateGoogleDriveCommand}" IsVisible="{Binding !IsGoogleDriveAuthenticated}" ToolTip.Tip="Conectar">
-                                  <TextBlock Text="🔗" FontSize="12"/>
+                                  <ic:SymbolIcon Symbol="Link" FontSize="14"/>
                               </Button>
                               <Button Classes="ghost-btn" Padding="6,2" Command="{Binding LogoutGoogleDriveCommand}" IsVisible="{Binding IsGoogleDriveAuthenticated}" ToolTip.Tip="Desconectar">
-                                  <TextBlock Text="❌" FontSize="12"/>
+                                  <ic:SymbolIcon Symbol="Dismiss" FontSize="14"/>
                               </Button>
                           </StackPanel>
                       </Grid>
                   </Border>
 
-                  <Button Content="💾 Fazer Backup Agora" 
-                          Command="{Binding RunBackupCommand}" 
+                  <Button Command="{Binding RunBackupCommand}" 
                           IsEnabled="{Binding !IsBackingUp}"
                           Classes="primary-btn" 
                           HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
-                          Margin="0,6,0,0"/>
+                          Margin="0,6,0,0">
+                      <StackPanel Orientation="Horizontal" Spacing="8">
+                          <ic:SymbolIcon Symbol="CloudArrowUp" VerticalAlignment="Center"/>
+                          <TextBlock Text="Fazer Backup Agora" VerticalAlignment="Center"/>
+                      </StackPanel>
+                  </Button>
                   
                   <TextBlock Text="{Binding BackupStatusMessage}" 
                              FontSize="10" 
@@ -238,7 +242,10 @@
             <!-- Uptime -->
             <Border Background="{StaticResource BrushBgSurface}" CornerRadius="8" Padding="10,8">
               <StackPanel Spacing="4">
-                <TextBlock Text="⏱  Uptime" FontSize="10" Foreground="{StaticResource BrushTextMuted}"/>
+                <StackPanel Orientation="Horizontal" Spacing="4">
+                    <ic:SymbolIcon Symbol="Clock" FontSize="10" Foreground="{StaticResource BrushTextMuted}" VerticalAlignment="Center"/>
+                    <TextBlock Text="Uptime" FontSize="10" Foreground="{StaticResource BrushTextMuted}" VerticalAlignment="Center"/>
+                </StackPanel>
                 <TextBlock Text="{Binding UptimeDisplay}"
                            FontSize="14" FontWeight="Bold" Foreground="{StaticResource BrushTextPrimary}"
                            FontFamily="Cascadia Code,Consolas,monospace"/>
@@ -248,7 +255,10 @@
             <!-- Players -->
             <Border Background="{StaticResource BrushBgSurface}" CornerRadius="8" Padding="10,8">
               <StackPanel Spacing="4">
-                <TextBlock Text="👥  Jogadores" FontSize="10" Foreground="{StaticResource BrushTextMuted}"/>
+                <StackPanel Orientation="Horizontal" Spacing="4">
+                    <ic:SymbolIcon Symbol="People" FontSize="10" Foreground="{StaticResource BrushTextMuted}" VerticalAlignment="Center"/>
+                    <TextBlock Text="Jogadores" FontSize="10" Foreground="{StaticResource BrushTextMuted}" VerticalAlignment="Center"/>
+                </StackPanel>
                 <TextBlock Text="{Binding OnlinePlayers, StringFormat='{}{0} online'}"
                            FontSize="14" FontWeight="Bold" Foreground="{StaticResource BrushTextPrimary}"/>
               </StackPanel>
@@ -263,24 +273,36 @@
 
         <!-- Control buttons -->
         <StackPanel Margin="16,0,16,12" Spacing="6">
-          <Button Content="▶  Iniciar Servidor"
-                  Command="{Binding StartServerCommand}"
+          <Button Command="{Binding StartServerCommand}"
                   IsVisible="{Binding !IsRunning}"
                   Classes="primary-btn"
                   HorizontalAlignment="Stretch"
-                  HorizontalContentAlignment="Center"/>
-          <Button Content="⏹  Parar Servidor"
-                  Command="{Binding StopServerCommand}"
+                  HorizontalContentAlignment="Center">
+              <StackPanel Orientation="Horizontal" Spacing="8">
+                  <ic:SymbolIcon Symbol="Play" VerticalAlignment="Center"/>
+                  <TextBlock Text="Iniciar Servidor" VerticalAlignment="Center"/>
+              </StackPanel>
+          </Button>
+          <Button Command="{Binding StopServerCommand}"
                   IsVisible="{Binding IsRunning}"
                   Classes="danger-btn"
                   HorizontalAlignment="Stretch"
-                  HorizontalContentAlignment="Center"/>
-          <Button Content="🔄  Reiniciar"
-                  Command="{Binding RestartServerCommand}"
+                  HorizontalContentAlignment="Center">
+              <StackPanel Orientation="Horizontal" Spacing="8">
+                  <ic:SymbolIcon Symbol="Stop" VerticalAlignment="Center"/>
+                  <TextBlock Text="Parar Servidor" VerticalAlignment="Center"/>
+              </StackPanel>
+          </Button>
+          <Button Command="{Binding RestartServerCommand}"
                   IsVisible="{Binding IsRunning}"
                   Classes="ghost-btn"
                   HorizontalAlignment="Stretch"
-                  HorizontalContentAlignment="Center"/>
+                  HorizontalContentAlignment="Center">
+              <StackPanel Orientation="Horizontal" Spacing="8">
+                  <ic:SymbolIcon Symbol="ArrowSync" VerticalAlignment="Center"/>
+                  <TextBlock Text="Reiniciar" VerticalAlignment="Center"/>
+              </StackPanel>
+          </Button>
         </StackPanel>
 
         </StackPanel>
@@ -327,18 +349,29 @@
                        CornerRadius="6"
                        Padding="10,6"
                        FontSize="12"/>
-              <Button Content="📋  Copiar"
-                      Click="CopyConsole_Click"
+              <Button Click="CopyConsole_Click"
                       Classes="ghost-btn"
-                      Padding="12,6"/>
-              <Button Content="🗑  Limpar"
-                      Command="{Binding ClearLogsCommand}"
+                      Padding="12,6">
+                  <StackPanel Orientation="Horizontal" Spacing="6">
+                      <ic:SymbolIcon Symbol="Clipboard" VerticalAlignment="Center" FontSize="14"/>
+                      <TextBlock Text="Copiar" VerticalAlignment="Center"/>
+                  </StackPanel>
+              </Button>
+              <Button Command="{Binding ClearLogsCommand}"
                       Classes="ghost-btn"
-                      Padding="12,6"/>
-              <Button Content="📥  Importar"
-                      Classes="ghost-btn"
+                      Padding="12,6">
+                  <StackPanel Orientation="Horizontal" Spacing="6">
+                      <ic:SymbolIcon Symbol="Delete" VerticalAlignment="Center" FontSize="14"/>
+                      <TextBlock Text="Limpar" VerticalAlignment="Center"/>
+                  </StackPanel>
+              </Button>
+              <Button Classes="ghost-btn"
                       Padding="12,6"
                       ToolTip.Tip="Importar um servidor existente (ZIP ou Pasta)">
+                  <StackPanel Orientation="Horizontal" Spacing="6">
+                      <ic:SymbolIcon Symbol="ArrowDownload" VerticalAlignment="Center" FontSize="14"/>
+                      <TextBlock Text="Importar" VerticalAlignment="Center"/>
+                  </StackPanel>
                   <Button.Flyout>
                       <MenuFlyout>
                           <MenuItem Header="Importar de arquivo (.zip)" Click="ImportServerZip_Click" />
@@ -346,11 +379,15 @@
                       </MenuFlyout>
                   </Button.Flyout>
               </Button>
-              <Button Content="⬅  Voltar ao Menu"
-                      Command="{Binding ReturnToMenuCommand}"
+              <Button Command="{Binding ReturnToMenuCommand}"
                       Classes="ghost-btn"
                       Foreground="{StaticResource BrushTextSecondary}"
-                      Padding="12,6"/>
+                      Padding="12,6">
+                  <StackPanel Orientation="Horizontal" Spacing="6">
+                      <ic:SymbolIcon Symbol="ArrowLeft" VerticalAlignment="Center" FontSize="14"/>
+                      <TextBlock Text="Voltar ao Menu" VerticalAlignment="Center"/>
+                  </StackPanel>
+              </Button>
             </StackPanel>
           </Grid>
         </ScrollViewer>
@@ -431,11 +468,15 @@
                    FontSize="13"
                    IsEnabled="{Binding IsRunning}"/>
           <Button Grid.Column="1"
-                  Content="Enviar  ↵"
                   Command="{Binding SendConsoleInputCommand}"
                   Classes="primary-btn"
                   IsEnabled="{Binding IsRunning}"
-                  Padding="16,8"/>
+                  Padding="16,8">
+              <StackPanel Orientation="Horizontal" Spacing="8">
+                  <TextBlock Text="Enviar" VerticalAlignment="Center"/>
+                  <ic:SymbolIcon Symbol="Send" VerticalAlignment="Center" FontSize="14"/>
+              </StackPanel>
+          </Button>
         </Grid>
       </Border>
 

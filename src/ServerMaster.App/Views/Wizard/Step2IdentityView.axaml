@@ -1,6 +1,7 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="clr-namespace:ServerMaster.ViewModels.Wizard;assembly=ServerMaster.ViewModels"
+             xmlns:ic="using:FluentIcons.Avalonia"
              x:Class="ServerMaster.App.Views.Wizard.Step2IdentityView"
              x:DataType="vm:Step2IdentityViewModel"
              Background="{StaticResource BrushBgBase}">
@@ -54,8 +55,18 @@
 
     <!-- Nav -->
     <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="12" HorizontalAlignment="Right">
-      <Button Content="← Voltar" Command="{Binding BackCommand}" Classes="ghost-btn"/>
-      <Button Content="Próximo →" Command="{Binding NextCommand}" Classes="primary-btn"/>
+      <Button Command="{Binding BackCommand}" Classes="ghost-btn">
+        <StackPanel Orientation="Horizontal" Spacing="8">
+          <ic:SymbolIcon Symbol="ArrowLeft" VerticalAlignment="Center"/>
+          <TextBlock Text="Voltar" VerticalAlignment="Center"/>
+        </StackPanel>
+      </Button>
+      <Button Command="{Binding NextCommand}" Classes="primary-btn">
+        <StackPanel Orientation="Horizontal" Spacing="8">
+          <TextBlock Text="Próximo" VerticalAlignment="Center"/>
+          <ic:SymbolIcon Symbol="ArrowRight" VerticalAlignment="Center"/>
+        </StackPanel>
+      </Button>
     </StackPanel>
   </Grid>
 </UserControl>
