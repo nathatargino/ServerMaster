@@ -35,11 +35,18 @@ jobs:
           $timestamp = Get-Date -Format "yyyyMMddHHmmss"
           $version = "v$codeVersion-$timestamp"
         }
-        echo "VERSION=$version" >> $env:GITHUB_ENV
+        echo "VERSION=$version" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+        
+    - name: Inject InformationalVersion
+      run: |
+        $csprojPath = "src/ServerMaster.App/ServerMaster.App.csproj"
+        $content = Get-Content $csprojPath -Raw
+        $content = $content -replace '</PropertyGroup>', "<InformationalVersion>${{ env.VERSION }}</InformationalVersion>`n  </PropertyGroup>"
+        Set-Content -Path $csprojPath -Value $content -Encoding UTF8
         
     - name: Publish ServerMaster
       run: |
-        dotnet publish src/ServerMaster.App/ServerMaster.App.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:InformationalVersion=${{ env.VERSION }} -o publish
+        dotnet publish src/ServerMaster.App/ServerMaster.App.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o publish
         
     - name: Compile Installer
       run: |
