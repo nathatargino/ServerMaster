@@ -1,4 +1,4 @@
-[Setup]
+﻿[Setup]
 AppName=Server Master
 AppVersion=1.0.2
 AppPublisher=Server Master Team
@@ -23,7 +23,8 @@ Name: "{group}\Server Master"; Filename: "{app}\ServerMaster.exe"
 Name: "{autodesktop}\Server Master"; Filename: "{app}\ServerMaster.exe"; Tasks: desktopicon
 
 [Tasks]
-Name: "desktopicon"; Description: "Criar um ícone na área de trabalho"; GroupDescription: "Ícones adicionais:"
+Name: "desktopicon"; Description: "Criar um Ã­cone na Ã¡rea de trabalho"; GroupDescription: "Ãcones adicionais:"
 
 [Run]
 Filename: "{app}\ServerMaster.exe"; Description: "Iniciar Server Master"; Flags: nowait postinstall skipifsilent
+

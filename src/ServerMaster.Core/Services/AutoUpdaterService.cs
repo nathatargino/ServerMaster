@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Reflection;
 using System.Text.Json;
 using System.Net.Http.Headers;
@@ -19,7 +19,7 @@ public sealed class AutoUpdaterService
         var exePath = Process.GetCurrentProcess().MainModule?.FileName;
         if (string.IsNullOrEmpty(exePath)) return "1.0.0";
         var fvi = FileVersionInfo.GetVersionInfo(exePath);
-        return fvi.ProductVersion ?? fvi.FileVersion ?? "1.0.0";
+        return fvi.FileVersion ?? "1.0.0";
     }
 
     /// <summary>
@@ -121,4 +121,5 @@ public sealed class AutoUpdaterService
         }
     }
 }
+
 
