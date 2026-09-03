@@ -106,18 +106,17 @@
               
               <StackPanel Spacing="6">
                   <!-- Local Directory -->
-                  <Button Classes="ghost-btn" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" 
-                          Padding="6,4" Click="SelectLocalBackupFolder_Click" ToolTip.Tip="Alterar pasta de backup local">
+                  <StackPanel Spacing="4">
+                      <TextBlock Text="Diretório Local" FontSize="11" Foreground="{StaticResource BrushTextMuted}" />
                       <Grid ColumnDefinitions="*,Auto">
-                          <StackPanel Grid.Column="0" Spacing="2" HorizontalAlignment="Left">
-                              <TextBlock Text="Diretório Local" FontSize="11" Foreground="{StaticResource BrushTextMuted}" />
-                              <TextBlock Text="{Binding LocalBackupDirectory, FallbackValue='Nenhum selecionado'}" 
-                                         FontSize="11" Foreground="{StaticResource BrushTextPrimary}"
-                                         TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding LocalBackupDirectory}" />
-                          </StackPanel>
-                          <ic:SymbolIcon Grid.Column="1" Symbol="Folder" FontSize="14" Foreground="{StaticResource BrushTextSecondary}" VerticalAlignment="Center" Margin="4,0,0,0"/>
+                          <TextBox Grid.Column="0" Text="{Binding LocalBackupDirectory, FallbackValue='Nenhum selecionado'}" 
+                                   IsReadOnly="True" FontSize="11" VerticalContentAlignment="Center" Background="{StaticResource BrushBgElevated}" BorderThickness="1" BorderBrush="{StaticResource BrushBorder}"/>
+                          <Button Grid.Column="1" Classes="ghost-btn" Click="SelectLocalBackupFolder_Click" 
+                                  ToolTip.Tip="Alterar pasta de backup local" Margin="4,0,0,0" Padding="8,4" VerticalAlignment="Stretch" VerticalContentAlignment="Center">
+                              <ic:SymbolIcon Symbol="FolderSearch" FontSize="16" />
+                          </Button>
                       </Grid>
-                  </Button>
+                  </StackPanel>
                   
                   <!-- Google Drive -->
                   <Border Background="{StaticResource BrushBgBase}" CornerRadius="6" Padding="6,4">
