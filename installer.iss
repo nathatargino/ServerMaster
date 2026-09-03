@@ -30,3 +30,4 @@ Filename: "{app}\ServerMaster.exe"; Description: "Iniciar Server Master"; Flags:
 
 
 
+
