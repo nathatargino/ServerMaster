@@ -10,7 +10,7 @@
         x:Class="ServerMaster.App.MainWindow"
         x:DataType="local:AppShellViewModel"
         Icon="avares://ServerMaster/Assets/logo.png"
-        Title="Server Master v1.0.1"
+        Title="Server Master v1.0.2"
         Width="1200" Height="720"
         MinWidth="900" MinHeight="600"
         WindowState="Maximized"

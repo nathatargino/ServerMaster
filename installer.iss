@@ -1,6 +1,6 @@
 [Setup]
 AppName=Server Master
-AppVersion=1.0.1
+AppVersion=1.0.2
 AppPublisher=Server Master Team
 AppPublisherURL=https://github.com/nathatargino/ServerMaster
 AppCopyright=Copyright (C) 2026 Server Master

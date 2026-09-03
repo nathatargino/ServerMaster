@@ -80,11 +80,28 @@ public sealed class HytaleServer : IServerEngine, IAsyncDisposable
                     Emit(LogLevel.Warning, $"[ServerMaster] Não foi possível baixar a versão {_profile.GameVersion} da nuvem.");
                     
                     // Fallback to local client installation if cloud fails
-                    var localHytalePath = Path.Combine(appDataPath, @"Hytale\install\release\package\game\latest\Server\HytaleServer.jar");
-                    if (File.Exists(localHytalePath))
+                    var localHytaleDir = Path.Combine(appDataPath, @"Hytale\install\release\package\game\latest");
+                    var localServerDir = Path.Combine(localHytaleDir, "Server");
+                    var localAssets = Path.Combine(localHytaleDir, "Assets.zip");
+                    
+                    var targetServerDir = Path.Combine(_profile.ServerDirectory, "Server");
+                    var targetAssets = Path.Combine(_profile.ServerDirectory, "Assets.zip");
+
+                    if (Directory.Exists(localServerDir))
                     {
-                        Emit(LogLevel.Information, "[ServerMaster] Usando versão de fallback local do launcher.");
-                        File.Copy(localHytalePath, hytaleServerJar, true);
+                        Emit(LogLevel.Information, "[ServerMaster] Copiando estrutura de fallback local do launcher para isolamento...");
+                        progress?.Report("Copiando estrutura oficial do Hytale (Server e Assets.zip)...");
+                        
+                        if (!Directory.Exists(targetServerDir))
+                        {
+                            CopyDirectory(localServerDir, targetServerDir);
+                        }
+                        if (File.Exists(localAssets) && !File.Exists(targetAssets))
+                        {
+                            File.Copy(localAssets, targetAssets, true);
+                        }
+
+                        // For local testing without GitHub mock, we just consider it has the jar locally inside ServerDirectory now
                         hasRealJar = true;
                     }
                 }
@@ -194,11 +211,22 @@ server.bind(port);";
         {
             Emit(LogLevel.Information, "[ServerMaster] Preparando inicialização da Engine...");
 
-            var runtimesDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Runtimes", "Hytale", p.GameVersion ?? "");
-            var hytaleServerJar = Path.Combine(runtimesDir, "HytaleServer.jar");
-            
+            var hytaleServerJar = Path.Combine(p.ServerDirectory, "Server", "HytaleServer.jar");
             var hasRealJar = File.Exists(hytaleServerJar);
             
+            if (!hasRealJar)
+            {
+                // Verify if it's in the runtimes folder (for old prepared servers)
+                var runtimesDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Runtimes", "Hytale", p.GameVersion ?? "");
+                var runtimesJar = Path.Combine(runtimesDir, "HytaleServer.jar");
+                if (File.Exists(runtimesJar))
+                {
+                    hytaleServerJar = runtimesJar;
+                    hasRealJar = true;
+                    Emit(LogLevel.Warning, "[ServerMaster] Aviso: Usando estrutura sem isolamento (Runtimes). Clique em Preparar novamente ou crie um novo servidor para usar a nova arquitetura isolada!");
+                }
+            }
+
             if (!hasRealJar)
             {
                 // Fallback to local launcher installation for legacy servers that weren't "prepared"
@@ -208,7 +236,7 @@ server.bind(port);";
                 {
                     hytaleServerJar = fallbackJar;
                     hasRealJar = true;
-                    Emit(LogLevel.Warning, "[ServerMaster] Aviso: Usando engine local antiga. Crie um novo servidor para aplicar as versões mais recentes (ex: 0.6.3).");
+                    Emit(LogLevel.Warning, "[ServerMaster] Aviso: Usando engine global do launcher. Clique em Preparar para aplicar a nova arquitetura isolada!");
                 }
             }
 
@@ -220,10 +248,16 @@ server.bind(port);";
 
         var ram = p.Resources;
         var args = hasRealJar 
-            ? $"-Xms{ram.RamMinMb}M -Xmx{ram.RamMb}M -XX:+UseG1GC -jar \"{hytaleServerJar}\" --assets ../Assets.zip --bind 0.0.0.0:{p.Port} --auth-mode offline --backup --backup-dir backups --backup-frequency 30"
+            ? $"-Xms{ram.RamMinMb}M -Xmx{ram.RamMb}M -XX:+UseG1GC -jar \"{hytaleServerJar}\" --assets \"{Path.Combine(Path.GetDirectoryName(hytaleServerJar), "..", "Assets.zip")}\" --bind 0.0.0.0:{p.Port} --auth-mode AUTHENTICATED --backup --backup-dir backups --backup-frequency 30"
             : "server.js";
 
-        var execContext = hasRealJar ? Path.GetDirectoryName(hytaleServerJar) : p.ServerDirectory;
+        var isIsolated = hytaleServerJar.StartsWith(p.ServerDirectory, StringComparison.OrdinalIgnoreCase);
+        var execContext = isIsolated ? p.ServerDirectory : Path.GetDirectoryName(hytaleServerJar);
+        
+        if (isIsolated)
+        {
+            args = $"-Xms{ram.RamMinMb}M -Xmx{ram.RamMb}M -XX:+UseG1GC -jar \"Server/HytaleServer.jar\" --assets Assets.zip --bind 0.0.0.0:{p.Port} --auth-mode AUTHENTICATED --backup --backup-dir backups --backup-frequency 30";
+        }
 
         try
         {
@@ -277,7 +311,46 @@ server.bind(port);";
             {
                 var line = await reader.ReadLineAsync(ct);
                 if (line is null) break;
+                
                 Emit(level, line);
+
+                if (line.Contains("Use /auth login to authenticate"))
+                {
+                    Emit(LogLevel.Information, "[ServerMaster] Solicitando login de dispositivo para a Engine...");
+                    _ = SendCommandAsync("/auth login device", ct);
+                }
+                
+                // Device Auth Interception
+                if (line.Contains("https://oauth.accounts.hytale.com/oauth2/device/verify?user_code="))
+                {
+                    try
+                    {
+                        var urlMatch = System.Text.RegularExpressions.Regex.Match(line, @"https://oauth\.accounts\.hytale\.com/oauth2/device/verify\?user_code=([A-Za-z0-9]+)");
+                        if (urlMatch.Success)
+                        {
+                            var url = urlMatch.Value;
+                            var codeSpan = urlMatch.Groups[1].Value;
+                            
+                            Emit(LogLevel.Information, $"[ServerMaster] =========================================");
+                            Emit(LogLevel.Information, $"[ServerMaster] 🔑 AUTENTICAÇÃO REQUERIDA!");
+                            Emit(LogLevel.Information, $"[ServerMaster] 🔑 Seu código é: {codeSpan}");
+                            Emit(LogLevel.Information, $"[ServerMaster] 🔑 O navegador foi aberto para autorizar seu servidor automaticamente!");
+                            Emit(LogLevel.Information, $"[ServerMaster] =========================================");
+                            
+                            Process.Start(new ProcessStartInfo
+                            {
+                                FileName = "cmd",
+                                Arguments = $"/c start \"\" \"{url}\"",
+                                CreateNoWindow = true,
+                                UseShellExecute = false
+                            });
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Emit(LogLevel.Warning, $"[ServerMaster] Não foi possível abrir o navegador: {ex.Message}");
+                    }
+                }
             }
         }
         catch (OperationCanceledException) { }
@@ -318,6 +391,15 @@ server.bind(port);";
         _logSubject.Dispose();
         _resourceSubject.Dispose();
         _resourceMonitor.Dispose();
+    }
+
+    private static void CopyDirectory(string sourceDir, string destinationDir)
+    {
+        Directory.CreateDirectory(destinationDir);
+        foreach (var file in Directory.GetFiles(sourceDir))
+            File.Copy(file, Path.Combine(destinationDir, Path.GetFileName(file)), true);
+        foreach (var dir in Directory.GetDirectories(sourceDir))
+            CopyDirectory(dir, Path.Combine(destinationDir, Path.GetFileName(dir)));
     }
 }
 
