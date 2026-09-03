@@ -35,6 +35,17 @@ public sealed class PlayitTunnelService : INetworkTunnel, IAsyncDisposable
     /// <summary>Optional callback to pipe CLI output lines to the server log console.</summary>
     public Action<string>? LogCallback { get; set; }
 
+    public async Task InitializeAsync(ServerProfile profile, CancellationToken ct = default)
+    {
+        _profile = profile;
+        _browserOpenedForClaim = false;
+
+        await EnsureCliPresentAsync(ct);
+
+        _statusSubject.OnNext(new TunnelStatus(TunnelState.Connecting, "Iniciando túnel Playit..."));
+        Log("[Playit] Iniciando processo CLI...");
+    }
+
     public async Task<TunnelInfo> StartAsync(int localPort, CancellationToken ct = default)
     {
         await EnsureCliPresentAsync(ct);
@@ -77,6 +88,8 @@ public sealed class PlayitTunnelService : INetworkTunnel, IAsyncDisposable
         LogCallback?.Invoke(message);
     }
 
+    private bool _browserOpenedForClaim = false;
+
     private void ParseOutput(string? line)
     {
         if (string.IsNullOrWhiteSpace(line)) return;
@@ -95,8 +108,9 @@ public sealed class PlayitTunnelService : INetworkTunnel, IAsyncDisposable
         {
             var m = System.Text.RegularExpressions.Regex.Match(
                 clean, @"https://playit\.gg/claim/[A-Za-z0-9\-]+");
-            if (m.Success)
+            if (m.Success && !_browserOpenedForClaim)
             {
+                _browserOpenedForClaim = true;
                 Log("[Playit] Abrindo link de vinculação no navegador...");
                 Process.Start(new ProcessStartInfo(m.Value) { UseShellExecute = true });
                 _statusSubject.OnNext(new TunnelStatus(TunnelState.Connecting, "Aguardando vinculo no navegador..."));
