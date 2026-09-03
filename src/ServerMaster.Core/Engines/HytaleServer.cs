@@ -129,13 +129,12 @@ const port = process.env.PORT || 5520;
 let onlinePlayers = 0;
 
 server.on('error', (err) => {
-  console.log([Hytale] Server error:
-);
+  console.log(`[Hytale] Server error:\n${err.stack}`);
   server.close();
 });
 
 server.on('message', (msg, rinfo) => {
-  console.log([Hytale] Recebido pacote UDP de : ( bytes));
+  console.log(`[Hytale] Recebido pacote UDP de ${rinfo.address}:${rinfo.port} (${msg.length} bytes)`);
   if (msg.length > 0) {
       const response = Buffer.from('HYTALE_MOCK_ACCEPTED');
       server.send(response, 0, response.length, rinfo.port, rinfo.address);
@@ -143,18 +142,29 @@ server.on('message', (msg, rinfo) => {
 });
 
 server.on('listening', () => {
-    console.log([Hytale] Loading mock world data (Seed: -2294191));
+    console.log(`[Hytale] Loading mock world data (Seed: -2294191)`);
     setTimeout(() => {
-        console.log([Hytale] Starting network listener on 0.0.0.0:...);
+        console.log(`[Hytale] Starting network listener on 0.0.0.0:${port}...`);
         setTimeout(() => {
-            console.log([Hytale] Server marked as ONLINE. Conecte no IP local.);
+            console.log(`[Hytale] Server marked as ONLINE. Conecte no IP local.`);
         }, 500);
     }, 1000);
 });
 
 setInterval(() => {
     console.log('[Hytale] Keep-alive packet broadcasted.');
-}, 6000);
+    
+    // Simulate players joining and leaving for the UI
+    if (Math.random() > 0.6) {
+        if (Math.random() > 0.4 && onlinePlayers < 50) {
+            onlinePlayers++;
+            console.log(`Player${Math.floor(Math.random() * 9000) + 1000} joined the game`);
+        } else if (onlinePlayers > 0) {
+            onlinePlayers--;
+            console.log(`Player${Math.floor(Math.random() * 9000) + 1000} left the game`);
+        }
+    }
+}, 5000);
 
 server.bind(port);";
 
