@@ -1,4 +1,4 @@
-<Window xmlns="https://github.com/avaloniaui"
+﻿<Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="clr-namespace:ServerMaster.ViewModels.Wizard;assembly=ServerMaster.ViewModels"
         xmlns:dash="clr-namespace:ServerMaster.ViewModels.Dashboard;assembly=ServerMaster.ViewModels"
@@ -10,7 +10,7 @@
         x:Class="ServerMaster.App.MainWindow"
         x:DataType="local:AppShellViewModel"
         Icon="avares://ServerMaster/Assets/logo.png"
-        Title="Server Master v1.0.2"
+        Title="Server Master v1.0.5"
         Width="1200" Height="720"
         MinWidth="900" MinHeight="600"
         WindowState="Maximized"
@@ -32,8 +32,9 @@
     </DataTemplate>
   </Window.DataTemplates>
 
-  <!-- Main content â€” routes by ViewModel type -->
+  <!-- Main content Ã¢â‚¬â€ routes by ViewModel type -->
   <ContentControl Content="{Binding CurrentPage}"/>
 
 </Window>
+
 

@@ -2,10 +2,14 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0</TargetFramework>
-    <Version>1.0.4</Version>
-    <AssemblyVersion>1.0.4</AssemblyVersion>
-    <FileVersion>1.0.4</FileVersion>
+    <Version>1.0.5</Version>
+    <AssemblyVersion>1.0.5</AssemblyVersion>
+    <FileVersion>1.0.5</FileVersion>
     <AssemblyName>ServerMaster</AssemblyName>
+    <Company>Natha Targino</Company>
+    <Product>Server Master</Product>
+    <Copyright>Copyright © 2026 Natha Targino</Copyright>
+    <Description>Server Master Game Server Manager</Description>
     <Nullable>enable</Nullable>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ApplicationIcon>Assets\logo.ico</ApplicationIcon>
@@ -33,6 +37,8 @@
     <AvaloniaResource Include="Assets\**" />
   </ItemGroup>
 </Project>
+
+
 
 
 
