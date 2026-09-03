@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Reactive.Subjects;
 using ServerMaster.Core.Abstractions;
 using ServerMaster.Core.Models;
@@ -35,22 +35,12 @@ public sealed class PlayitTunnelService : INetworkTunnel, IAsyncDisposable
     /// <summary>Optional callback to pipe CLI output lines to the server log console.</summary>
     public Action<string>? LogCallback { get; set; }
 
-    public async Task InitializeAsync(ServerProfile profile, CancellationToken ct = default)
-    {
-        _profile = profile;
-        _browserOpenedForClaim = false;
-
-        await EnsureCliPresentAsync(ct);
-
-        _statusSubject.OnNext(new TunnelStatus(TunnelState.Connecting, "Iniciando túnel Playit..."));
-        Log("[Playit] Iniciando processo CLI...");
-    }
-
     public async Task<TunnelInfo> StartAsync(int localPort, CancellationToken ct = default)
     {
+        _browserOpenedForClaim = false;
         await EnsureCliPresentAsync(ct);
 
-        _statusSubject.OnNext(new TunnelStatus(TunnelState.Connecting, "Iniciando túnel Playit..."));
+        _statusSubject.OnNext(new TunnelStatus(TunnelState.Connecting, "Iniciando tÃºnel Playit..."));
         Log("[Playit] Iniciando processo CLI...");
 
         var psi = new ProcessStartInfo
@@ -77,9 +67,9 @@ public sealed class PlayitTunnelService : INetworkTunnel, IAsyncDisposable
         _tunnelProcess.BeginOutputReadLine();
         _tunnelProcess.BeginErrorReadLine();
 
-        Log($"[Playit] Processo PID={_tunnelProcess.Id} iniciado. Aguardando endereço público...");
+        Log($"[Playit] Processo PID={_tunnelProcess.Id} iniciado. Aguardando endereÃ§o pÃºblico...");
 
-        // Return immediately — dashboard subscribes to StatusStream for address updates
+        // Return immediately â€” dashboard subscribes to StatusStream for address updates
         return new TunnelInfo("pending", localPort, "tcp");
     }
 
@@ -103,7 +93,7 @@ public sealed class PlayitTunnelService : INetworkTunnel, IAsyncDisposable
         // Always log raw CLI output so the user can see it in the console
         Log($"[Playit] {clean}");
 
-        // ── Auto-open browser for initial agent-claim workflow ────────────────
+        // â”€â”€ Auto-open browser for initial agent-claim workflow â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         if (clean.Contains("playit.gg/claim/"))
         {
             var m = System.Text.RegularExpressions.Regex.Match(
@@ -111,7 +101,7 @@ public sealed class PlayitTunnelService : INetworkTunnel, IAsyncDisposable
             if (m.Success && !_browserOpenedForClaim)
             {
                 _browserOpenedForClaim = true;
-                Log("[Playit] Abrindo link de vinculação no navegador...");
+                Log("[Playit] Abrindo link de vinculaÃ§Ã£o no navegador...");
                 Process.Start(new ProcessStartInfo(m.Value) { UseShellExecute = true });
                 _statusSubject.OnNext(new TunnelStatus(TunnelState.Connecting, "Aguardando vinculo no navegador..."));
             }
@@ -121,7 +111,7 @@ public sealed class PlayitTunnelService : INetworkTunnel, IAsyncDisposable
         // Handle invalid secrets
         if (clean.Contains("Invalid secret", StringComparison.OrdinalIgnoreCase))
         {
-            Log("[Playit] ⚠️ Segredo expirado ou inválido detectado! Excluindo cache local...");
+            Log("[Playit] âš ï¸ Segredo expirado ou invÃ¡lido detectado! Excluindo cache local...");
             try { if (File.Exists(SecretPath)) File.Delete(SecretPath); } catch {}
             _statusSubject.OnNext(new TunnelStatus(TunnelState.Disconnected, "Segredo expirado. Reinicie o servidor."));
             
@@ -200,7 +190,7 @@ public sealed class PlayitTunnelService : INetworkTunnel, IAsyncDisposable
                         
                         if (!string.IsNullOrEmpty(display))
                         {
-                            Log($"[Playit] ✅ Túnel extraído do Payload JSON: {display}");
+                            Log($"[Playit] âœ… TÃºnel extraÃ­do do Payload JSON: {display}");
                             
                             // Re-marshal to UI safely via Next()
                             _statusSubject.OnNext(new TunnelStatus(TunnelState.Connected, display));
@@ -209,11 +199,11 @@ public sealed class PlayitTunnelService : INetworkTunnel, IAsyncDisposable
                     }
                 }
             }
-            Log("[Playit] Falha: 'tunnels list' não retornou nenhum túnel ativo no JSON.");
+            Log("[Playit] Falha: 'tunnels list' nÃ£o retornou nenhum tÃºnel ativo no JSON.");
         }
         catch (Exception ex)
         {
-            Log($"[Playit] Exceção ao extrair endereço via tunnels list: {ex.Message}");
+            Log($"[Playit] ExceÃ§Ã£o ao extrair endereÃ§o via tunnels list: {ex.Message}");
         }
     }
 
@@ -268,7 +258,7 @@ public sealed class PlayitTunnelService : INetworkTunnel, IAsyncDisposable
         };
 
         using var process = Process.Start(psi);
-        if (process == null) throw new InvalidOperationException("Falha ao iniciar o CLI do Playit para vinculação.");
+        if (process == null) throw new InvalidOperationException("Falha ao iniciar o CLI do Playit para vinculaÃ§Ã£o.");
 
         using var cts = new CancellationTokenSource(TimeSpan.FromMinutes(3)); // Give user 3 minutes to accept on browser
         var tcs = new TaskCompletionSource<bool>();
@@ -288,7 +278,7 @@ public sealed class PlayitTunnelService : INetworkTunnel, IAsyncDisposable
                     openedTarget = true;
                     onStatusUpdate?.Invoke("URL gerada! Abra seu navegador...");
                     Process.Start(new ProcessStartInfo(m.Value) { UseShellExecute = true });
-                    onStatusUpdate?.Invoke("Aguardando aprovação no site da Playit...");
+                    onStatusUpdate?.Invoke("Aguardando aprovaÃ§Ã£o no site da Playit...");
                 }
             }
             
@@ -317,7 +307,7 @@ public sealed class PlayitTunnelService : INetworkTunnel, IAsyncDisposable
         process.OutputDataReceived += (_, e) => HandleLine(e.Data);
         process.ErrorDataReceived += (_, e) => HandleLine(e.Data);
         process.Exited += (_, _) => {
-            if (!tcs.Task.IsCompleted) tcs.TrySetException(new InvalidOperationException("Processo encerrou antes de concluir a vinculação."));
+            if (!tcs.Task.IsCompleted) tcs.TrySetException(new InvalidOperationException("Processo encerrou antes de concluir a vinculaÃ§Ã£o."));
         };
         
         process.EnableRaisingEvents = true;
@@ -326,7 +316,7 @@ public sealed class PlayitTunnelService : INetworkTunnel, IAsyncDisposable
 
         try
         {
-            await using (cts.Token.Register(() => tcs.TrySetException(new TimeoutException("Tempo esgotado ao aguardar o usuário aprovar no navegador."))))
+            await using (cts.Token.Register(() => tcs.TrySetException(new TimeoutException("Tempo esgotado ao aguardar o usuÃ¡rio aprovar no navegador."))))
             {
                 await tcs.Task;
             }
@@ -340,3 +330,5 @@ public sealed class PlayitTunnelService : INetworkTunnel, IAsyncDisposable
         }
     }
 }
+
+
