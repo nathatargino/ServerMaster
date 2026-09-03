@@ -29,3 +29,4 @@ Name: "desktopicon"; Description: "Criar um Ã­cone na Ã¡rea de trabalho"; Gr
 Filename: "{app}\ServerMaster.exe"; Description: "Iniciar Server Master"; Flags: nowait postinstall skipifsilent
 
 
+

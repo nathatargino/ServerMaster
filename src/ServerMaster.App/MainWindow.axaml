@@ -10,7 +10,7 @@
         x:Class="ServerMaster.App.MainWindow"
         x:DataType="local:AppShellViewModel"
         Icon="avares://ServerMaster/Assets/logo.png"
-        Title="Server Master v1.0.5"
+        Title="Server Master v1.0.6"
         Width="1200" Height="720"
         MinWidth="900" MinHeight="600"
         WindowState="Maximized"
@@ -36,5 +36,6 @@
   <ContentControl Content="{Binding CurrentPage}"/>
 
 </Window>
+
 
 
