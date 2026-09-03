@@ -22,14 +22,6 @@ jobs:
       with:
         dotnet-version: 8.0.x
         
-    - name: Publish ServerMaster
-      run: |
-        dotnet publish src/ServerMaster.App/ServerMaster.App.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o publish
-        
-    - name: Compile Installer
-      run: |
-        iscc installer.iss
-        
     - name: Get Version
       id: get_version
       run: |
@@ -44,6 +36,14 @@ jobs:
           $version = "v$codeVersion-$timestamp"
         }
         echo "VERSION=$version" >> $env:GITHUB_ENV
+        
+    - name: Publish ServerMaster
+      run: |
+        dotnet publish src/ServerMaster.App/ServerMaster.App.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:InformationalVersion=${{ env.VERSION }} -o publish
+        
+    - name: Compile Installer
+      run: |
+        iscc installer.iss
         
     - name: Create Release and Upload Asset
       uses: softprops/action-gh-release@v2

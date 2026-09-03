@@ -19,7 +19,7 @@ public sealed class AutoUpdaterService
         var exePath = Process.GetCurrentProcess().MainModule?.FileName;
         if (string.IsNullOrEmpty(exePath)) return "1.0.0";
         var fvi = FileVersionInfo.GetVersionInfo(exePath);
-        return fvi.FileVersion ?? "1.0.0";
+        return fvi.ProductVersion ?? fvi.FileVersion ?? "1.0.0";
     }
 
     /// <summary>
@@ -51,6 +51,10 @@ public sealed class AutoUpdaterService
     /// </summary>
     public static async Task CheckAndUpdateAsync()
     {
+#if DEBUG
+        return;
+#endif
+
         if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) return;
 
         try
@@ -73,7 +77,7 @@ public sealed class AutoUpdaterService
             
             if (string.IsNullOrEmpty(latestTag)) return;
             
-            if (latestTag == currentVersion || latestTag == "v" + currentVersion || latestTag.StartsWith("v" + currentVersion + "-")) return;
+            if (latestTag == currentVersion || latestTag == "v" + currentVersion || currentVersion.StartsWith(latestTag)) return;
 
             // Locate the .exe asset
             var assets = root.GetProperty("assets");
